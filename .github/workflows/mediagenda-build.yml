@@ -1,4 +1,4 @@
-name: MediAgenda Android Build
+name: SaúdePrática Android Build
 
 on:
   push:
@@ -95,7 +95,7 @@ jobs:
           ROOT="build-src/MediAgenda_Android_v1"
           cp MediAgenda/v18_overrides/NotificationReceiver.kt "$ROOT/app/src/main/java/com/mediagenda/app/notifications/NotificationReceiver.kt"
 
-      - name: Build APK
+      - name: Apply SaúdePrática v1.9 document import and About\n        run: python3 MediAgenda/v19_overrides/apply_v19.py\n\n      - name: Build APK
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleRelease
 
@@ -105,14 +105,14 @@ jobs:
 
       - name: Prepare APK
         run: |
-          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk SaudePratica-v1.8-assets-placeholder-unsigned.apk
-          ls -lh SaudePratica-v1.8-assets-placeholder-unsigned.apk
+          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk SaudePratica-v1.9-unsigned.apk
+          ls -lh SaudePratica-v1.9-unsigned.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.8-assets-placeholder-unsigned
-          path: SaudePratica-v1.8-assets-placeholder-unsigned.apk
+          name: SaudePratica-v1.9-unsigned
+          path: SaudePratica-v1.9-unsigned.apk
           if-no-files-found: error
           retention-days: 30
 
