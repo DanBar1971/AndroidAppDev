@@ -112,6 +112,11 @@ jobs:
       - name: Apply SaúdePrática v1.9.1 branded About
         run: python3 MediAgenda/v20_overrides/apply_v20.py
 
+      - name: Apply SaúdePrática v1.9.2 multi-user profiles
+        run: |
+          python3 MediAgenda/v21_overrides/apply_v21.py
+          python3 MediAgenda/v21_overrides/apply_v21_notifications.py
+
       - name: Report artwork readiness
         shell: bash
         run: |
@@ -148,7 +153,7 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.1-INTERMEDIATE-unsigned
+          name: SaudePratica-v1.9.2-INTERMEDIATE-unsigned
           path: SaudePratica-v1.9.2-unsigned.apk
           if-no-files-found: error
           retention-days: 30
