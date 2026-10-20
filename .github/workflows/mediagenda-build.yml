@@ -16,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
+    env:
+      HAS_SIGNING_KEY: ${{ secrets.SAUDEPRATICA_KEYSTORE_B64 != '' && secrets.SAUDEPRATICA_KEYSTORE_PASSWORD != '' && secrets.SAUDEPRATICA_KEY_ALIAS != '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -101,6 +103,9 @@ jobs:
       - name: Apply SaúdePrática v1.9.1 branded About
         run: python3 MediAgenda/v20_overrides/apply_v20.py
 
+      - name: Validate real SaúdePrática artwork
+        run: python3 MediAgenda/tools/verify_graphics.py
+
       - name: Build APK
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleRelease
@@ -111,14 +116,40 @@ jobs:
 
       - name: Prepare APK
         run: |
-          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk SaudePratica-v1.9-unsigned.apk
-          ls -lh SaudePratica-v1.9-unsigned.apk
+          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk SaudePratica-v1.9.1-unsigned.apk
+          ls -lh SaudePratica-v1.9.1-unsigned.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: SaudePratica-v1.9-unsigned
           path: SaudePratica-v1.9-unsigned.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Sign release APK using existing stable key
+        if: ${{ env.HAS_SIGNING_KEY == 'true' }}
+        env:
+          SIGNING_KEYSTORE_B64: ${{ secrets.SAUDEPRATICA_KEYSTORE_B64 }}
+          SIGNING_PASSWORD: ${{ secrets.SAUDEPRATICA_KEYSTORE_PASSWORD }}
+          SIGNING_ALIAS: ${{ secrets.SAUDEPRATICA_KEY_ALIAS }}
+        run: |
+          printf '%s' "$SIGNING_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/saudepratica.jks"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" sign \
+            --ks "$RUNNER_TEMP/saudepratica.jks" \
+            --ks-key-alias "$SIGNING_ALIAS" \
+            --ks-pass env:SIGNING_PASSWORD \
+            --key-pass env:SIGNING_PASSWORD \
+            --out SaudePratica-v1.9.1-SIGNED.apk \
+            SaudePratica-v1.9.1-unsigned.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose SaudePratica-v1.9.1-SIGNED.apk
+
+      - name: Upload signed APK
+        if: ${{ env.HAS_SIGNING_KEY == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: SaudePratica-v1.9.1-SIGNED
+          path: SaudePratica-v1.9.1-SIGNED.apk
           if-no-files-found: error
           retention-days: 30
 
