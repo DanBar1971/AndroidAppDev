@@ -18,6 +18,8 @@ jobs:
           mkdir -p tools
           cp "$ANDROID_HOME/build-tools/35.0.0/zipalign" tools/zipalign
           cp "$ANDROID_HOME/build-tools/35.0.0/aapt2" tools/aapt2
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libc++1-18
           cp /usr/lib/x86_64-linux-gnu/libc++.so.1 tools/libc++.so
           chmod +x tools/zipalign tools/aapt2
           LD_LIBRARY_PATH="$PWD/tools" tools/zipalign -h >/dev/null 2>&1 || true
