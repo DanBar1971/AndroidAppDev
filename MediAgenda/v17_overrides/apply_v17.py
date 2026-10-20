@@ -73,7 +73,7 @@ extra = '''    private fun showMedicationAddOptions() {
 exact(needle, extra+needle)
 
 # Keep empty lists compact, too: the +Adicionar menu is the single entry point.
-exact('''"Use “Ler guia” ou adicione manualmente."''',
+exact('''"Fotografe uma caixa, leia uma guia ou adicione manualmente."''',
       '''"Toque em + Adicionar para fotografar uma caixa, ler uma guia ou inserir manualmente."''')
 exact('''"Fotografe uma folha de marcações ou adicione uma consulta."''',
       '''"Toque em + Adicionar para fotografar uma folha ou inserir uma marcação."''')
