@@ -1,0 +1,27 @@
+name: MediAgenda Packaging Tools
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/mediagenda-packaging-tools.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Zipalign from Android SDK
+        run: |
+          mkdir -p tools
+          cp "$ANDROID_HOME/build-tools/35.0.0/zipalign" tools/zipalign
+          chmod +x tools/zipalign
+          tar -czf android-packaging-tools.tar.gz tools
+      - name: Upload tools
+        uses: actions/upload-artifact@v4
+        with:
+          name: MediAgenda-Android-Zipalign
+          path: android-packaging-tools.tar.gz
+          retention-days: 5
