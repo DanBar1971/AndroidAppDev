@@ -72,20 +72,28 @@ jobs:
         run: |
           python3 MediAgenda/v15_overrides/apply_v15.py
 
+      - name: Apply v1.6 notifications and IPO multi-appointment OCR
+        run: |
+          ROOT="build-src/MediAgenda_Android_v1"
+          cp MediAgenda/v16_overrides/NotificationScheduler.kt "$ROOT/app/src/main/java/com/mediagenda/app/notifications/NotificationScheduler.kt"
+          cp MediAgenda/v16_overrides/NotificationReceiver.kt "$ROOT/app/src/main/java/com/mediagenda/app/notifications/NotificationReceiver.kt"
+          cp MediAgenda/v16_overrides/MultiAppointmentOcrParser.kt "$ROOT/app/src/main/java/com/mediagenda/app/ocr/MultiAppointmentOcrParser.kt"
+          python3 MediAgenda/v16_overrides/apply_v16.py
+
       - name: Build APK
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleRelease
 
       - name: Prepare APK
         run: |
-          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk MediAgenda-v1.5-unsigned.apk
-          ls -lh MediAgenda-v1.5-unsigned.apk
+          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk MediAgenda-v1.6-unsigned.apk
+          ls -lh MediAgenda-v1.6-unsigned.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: MediAgenda-v1.5-unsigned
-          path: MediAgenda-v1.5-unsigned.apk
+          name: MediAgenda-v1.6-unsigned
+          path: MediAgenda-v1.6-unsigned.apk
           if-no-files-found: error
           retention-days: 30
 
