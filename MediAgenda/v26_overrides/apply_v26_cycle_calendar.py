@@ -5,6 +5,8 @@ def edit(old,new,label):
  global s
  if old not in s:raise RuntimeError("v1.9.7 cycle calendar missing "+label)
  s=s.replace(old,new,1)
+edit('''import java.time.LocalDate''','''import java.time.LocalTime
+import java.time.LocalDate''',"time import")
 edit('''import android.content.res.Configuration''','''import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.res.Configuration''',"picker imports")
