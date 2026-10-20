@@ -1,0 +1,36 @@
+name: MediAgenda Inspect Source
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/mediagenda-inspect.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Reconstruct source
+        run: |
+          mkdir -p build-src
+          cat MediAgenda/source/v11_*.b64 > build-src/base.b64
+          base64 -d build-src/base.b64 > build-src/base.zip
+          unzip -q build-src/base.zip -d build-src
+          ROOT="build-src/MediAgenda_Android_v1"
+          cp MediAgenda/v12_overrides/PrescriptionOcrParser.kt "$ROOT/app/src/main/java/com/mediagenda/app/ocr/PrescriptionOcrParser.kt"
+          cp MediAgenda/v12_overrides/AppointmentOcrParser.kt "$ROOT/app/src/main/java/com/mediagenda/app/ocr/AppointmentOcrParser.kt"
+          python3 MediAgenda/v12_overrides/apply_v12.py
+      - name: Print medication sections
+        run: |
+          FILE="build-src/MediAgenda_Android_v1/app/src/main/java/com/mediagenda/app/MainActivity.kt"
+          grep -n -E "showMedication|editMedication|recognizePrescription|capturePrescription|pendingPrescription|takePrescription|MedicationAdapter" "$FILE" || true
+          echo "---- 80-260 ----"
+          sed -n '80,260p' "$FILE"
+          echo "---- 260-470 ----"
+          sed -n '260,470p' "$FILE"
+          echo "---- 620-760 ----"
+          sed -n '620,760p' "$FILE"
