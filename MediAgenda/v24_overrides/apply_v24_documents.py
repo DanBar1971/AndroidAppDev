@@ -59,7 +59,7 @@ sub('''        val heading = LinearLayout(this).apply { orientation = LinearLayo
         top.addView(label(user.name.take(12), 12f, true, turquoise).apply {
             gravity=Gravity.CENTER
             setPadding(dp(10),dp(7),dp(10),dp(7))
-            background=rounded(if (dark) Color.rgb(23,60,59) else Color.rgb(230,244,241))
+            this.background=rounded(if (dark) Color.rgb(23,60,59) else Color.rgb(230,244,241))
         })
         background.addView(top)
 
