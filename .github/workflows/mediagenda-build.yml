@@ -78,3 +78,19 @@ jobs:
           path: MediAgenda-v1.3-unsigned.apk
           if-no-files-found: error
           retention-days: 30
+
+      - name: Package apksigner
+        shell: bash
+        run: |
+          mkdir -p apksigner-tools
+          cp "$ANDROID_HOME/build-tools/35.0.0/apksigner" apksigner-tools/
+          cp "$ANDROID_HOME/build-tools/35.0.0/lib/apksigner.jar" apksigner-tools/
+          chmod +x apksigner-tools/apksigner
+          tar -czf apksigner-tools.tar.gz apksigner-tools
+
+      - name: Upload apksigner
+        uses: actions/upload-artifact@v4
+        with:
+          name: MediAgenda-apksigner-tools
+          path: apksigner-tools.tar.gz
+          retention-days: 7
