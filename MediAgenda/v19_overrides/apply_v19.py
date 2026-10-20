@@ -47,7 +47,8 @@ change('private fun showMedicationAddOptions() {', '''private var documentPurpos
                                                 (page.height*scale).toInt().coerceAtLeast(1),
                                                 android.graphics.Bitmap.Config.ARGB_8888)
                                             bitmap.eraseColor(Color.WHITE)
-                                            val matrix = android.graphics.Matrix().apply { setScale(scale, scale) }\n                                            page.render(bitmap, null, matrix, android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                                            val matrix = android.graphics.Matrix().apply { setScale(scale, scale) }
+                                            page.render(bitmap, null, matrix, android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                                             val file = java.io.File(cacheDir, "saudepratica_ocr_page.png")
                                             java.io.FileOutputStream(file).use { out ->
                                                 bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, out)
