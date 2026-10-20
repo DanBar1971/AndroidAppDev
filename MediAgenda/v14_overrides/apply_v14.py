@@ -176,7 +176,7 @@ s = s[:start] + '''    private fun showProfileDialog(firstRun: Boolean) {
                 nif.edit.error = "NIF inválido. Confirme os 9 dígitos."
                 return@setOnClickListener
             }
-            if (health.isNotBlank() && !health.matches(Regex("""\\d{9}"""))) {
+            if (health.isNotBlank() && (health.length != 9 || !health.all { it.isDigit() })) {
                 sns.edit.error = "O número de utente deve ter 9 dígitos."
                 return@setOnClickListener
             }
