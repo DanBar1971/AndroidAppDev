@@ -90,9 +90,18 @@ jobs:
         run: |
           python3 MediAgenda/v18_overrides/apply_v18.py
 
+      - name: Apply louder medication notifications
+        run: |
+          ROOT="build-src/MediAgenda_Android_v1"
+          cp MediAgenda/v18_overrides/NotificationReceiver.kt "$ROOT/app/src/main/java/com/mediagenda/app/notifications/NotificationReceiver.kt"
+
       - name: Build APK
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleRelease
+
+      - name: Inspect app graphic asset mapping
+        run: |
+          "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump resources build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk | grep -E -A 4 -B 3 'saude_splash|saude_background|saude_icon' || true
 
       - name: Prepare APK
         run: |
