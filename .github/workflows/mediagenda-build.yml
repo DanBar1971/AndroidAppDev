@@ -50,6 +50,26 @@ jobs:
           echo "f6c464cbd5025f8f478283db20e17ac8b71b9428dfec9f0e4a60295b95f54a77  build-src/MediAgenda.zip" | sha256sum -c -
           unzip -q build-src/MediAgenda.zip -d build-src
 
+      - name: Apply MediAgenda source fixes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("build-src/MediAgenda_Android_v1/app/src/main/java/com/mediagenda/app/MainActivity.kt")
+          s = p.read_text(encoding="utf-8")
+          old = '''pendingPhotoUri=FileProvider.getUriForFile(this,"${BuildConfig.APPLICATION_ID}.fileprovider",file)
+                  takeAppointmentPhoto.launch(pendingPhotoUri)'''
+          new = '''val uri=FileProvider.getUriForFile(this,"${BuildConfig.APPLICATION_ID}.fileprovider",file)
+                  pendingPhotoUri=uri
+                  takeAppointmentPhoto.launch(uri)'''
+          if old not in s:
+              raise SystemExit("Camera URI block not found")
+          s = s.replace(old, new, 1)
+          s = s.replace("singleLine = true", "setSingleLine(true)")
+          s = s.replace("else singleLine=true", "else setSingleLine(true)")
+          p.write_text(s, encoding="utf-8")
+          PY
+
       - name: Build APK
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleDebug
