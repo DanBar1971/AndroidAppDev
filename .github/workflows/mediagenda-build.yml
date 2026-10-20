@@ -95,7 +95,10 @@ jobs:
           ROOT="build-src/MediAgenda_Android_v1"
           cp MediAgenda/v18_overrides/NotificationReceiver.kt "$ROOT/app/src/main/java/com/mediagenda/app/notifications/NotificationReceiver.kt"
 
-      - name: Apply SaúdePrática v1.9 document import and About\n        run: python3 MediAgenda/v19_overrides/apply_v19.py\n\n      - name: Build APK
+      - name: Apply SaúdePrática v1.9 document import and About
+        run: python3 MediAgenda/v19_overrides/apply_v19.py
+
+      - name: Build APK
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleRelease
 
