@@ -20,17 +20,17 @@ start = s.index("        content.addView(summaryCard(\n            icon = \"📷
 end = s.index("        val items = repo.loadAppointments()", start)
 s = s[:start] + s[end:]
 
-exact('''        content.addView(sectionRow("Medicamentos", "\${items.size} registados") {
+exact('''        content.addView(sectionRow("Medicamentos", "${items.size} registados") {
             editMedication(null)
         })''',
-'''        content.addView(sectionRow("Medicamentos", "\${items.size} registados") {
+'''        content.addView(sectionRow("Medicamentos", "${items.size} registados") {
             showMedicationAddOptions()
         })''')
 
-exact('''        content.addView(sectionRow("Próximas marcações", "\${items.size} no total") {
+exact('''        content.addView(sectionRow("Próximas marcações", "${items.size} no total") {
             editAppointment(null)
         })''',
-'''        content.addView(sectionRow("Marcações", "\${items.size} no total") {
+'''        content.addView(sectionRow("Marcações", "${items.size} no total") {
             showAppointmentAddOptions()
         })''')
 
