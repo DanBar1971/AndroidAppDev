@@ -49,6 +49,30 @@ jobs:
           echo "e4aad8173353eb61e1f776a58c2a18d0cb6fdd9197f3c8f0c8856e9575357253  build-src/MediAgenda-v1.1.zip" | sha256sum -c -
           unzip -q build-src/MediAgenda-v1.1.zip -d build-src
 
+      - name: Apply v1.1 compile fixes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path("build-src/MediAgenda_Android_v1")
+          gradle = root / "app/build.gradle.kts"
+          s = gradle.read_text(encoding="utf-8").replace(
+              'com.google.android.gms:play-services-location:21.4.0',
+              'com.google.android.gms:play-services-location:21.3.0'
+          )
+          gradle.write_text(s, encoding="utf-8")
+
+          p = root / "app/src/main/java/com/mediagenda/app/MainActivity.kt"
+          s = p.read_text(encoding="utf-8")
+          s = s.replace('private val background = Color.parseColor("#F4F7F9")',
+                        'private val appBackground = Color.parseColor("#F4F7F9")')
+          s = s.replace('setBackgroundColor(background)', 'setBackgroundColor(appBackground)')
+          s = s.replace('private val text = Color.parseColor("#132238")',
+                        'private val mainTextColor = Color.parseColor("#132238")')
+          s = s.replace('setTextColor(text)', 'setTextColor(mainTextColor)')
+          p.write_text(s, encoding="utf-8")
+          PY
+
       - name: Build APK
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleDebug
