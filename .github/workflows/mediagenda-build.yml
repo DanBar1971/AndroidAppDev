@@ -86,20 +86,24 @@ jobs:
           cp MediAgenda/v17_overrides/IpoTableParser.kt "$ROOT/app/src/main/java/com/mediagenda/app/ocr/IpoTableParser.kt"
           python3 MediAgenda/v17_overrides/apply_v17.py
 
+      - name: Apply v1.8 SaúdePrática branding
+        run: |
+          python3 MediAgenda/v18_overrides/apply_v18.py
+
       - name: Build APK
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleRelease
 
       - name: Prepare APK
         run: |
-          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk MediAgenda-v1.7-unsigned.apk
-          ls -lh MediAgenda-v1.7-unsigned.apk
+          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk SaudePratica-v1.8-assets-placeholder-unsigned.apk
+          ls -lh SaudePratica-v1.8-assets-placeholder-unsigned.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: MediAgenda-v1.7-unsigned
-          path: MediAgenda-v1.7-unsigned.apk
+          name: SaudePratica-v1.8-assets-placeholder-unsigned
+          path: SaudePratica-v1.8-assets-placeholder-unsigned.apk
           if-no-files-found: error
           retention-days: 30
 
