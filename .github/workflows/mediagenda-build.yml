@@ -122,6 +122,16 @@ jobs:
             echo "::warning title=Artwork not packaged::Unsigned APK is an intermediate build only. Original artwork must be embedded before signing and installation."
           fi
 
+      - name: Upload reconstructed source for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: SaudePratica-reconstructed-source
+          path: |
+            build-src/MediAgenda_Android_v1/app/src/main/java
+            build-src/MediAgenda_Android_v1/app/build.gradle.kts
+            build-src/MediAgenda_Android_v1/app/src/main/AndroidManifest.xml
+          retention-days: 3
+
       - name: Build APK
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleRelease
