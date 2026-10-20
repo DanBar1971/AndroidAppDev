@@ -16,9 +16,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
-    env:
-      HAS_SIGNING_KEY: ${{ secrets.SAUDEPRATICA_KEYSTORE_B64 != '' && secrets.SAUDEPRATICA_KEYSTORE_PASSWORD != '' && secrets.SAUDEPRATICA_KEY_ALIAS != '' }}
     steps:
+      - name: Check signing secret availability
+        env:
+          SIGNING_KEYSTORE_B64: ${{ secrets.SAUDEPRATICA_KEYSTORE_B64 }}
+          SIGNING_PASSWORD: ${{ secrets.SAUDEPRATICA_KEYSTORE_PASSWORD }}
+          SIGNING_ALIAS: ${{ secrets.SAUDEPRATICA_KEY_ALIAS }}
+        run: |
+          if [ -n "$SIGNING_KEYSTORE_B64" ] && [ -n "$SIGNING_PASSWORD" ] && [ -n "$SIGNING_ALIAS" ]; then
+            echo "HAS_SIGNING_KEY=true" >> "$GITHUB_ENV"
+          else
+            echo "HAS_SIGNING_KEY=false" >> "$GITHUB_ENV"
+          fi
       - name: Checkout
         uses: actions/checkout@v5
 
@@ -122,8 +131,8 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9-unsigned
-          path: SaudePratica-v1.9-unsigned.apk
+          name: SaudePratica-v1.9.1-unsigned
+          path: SaudePratica-v1.9.1-unsigned.apk
           if-no-files-found: error
           retention-days: 30
 
