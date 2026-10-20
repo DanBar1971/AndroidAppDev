@@ -24,13 +24,10 @@ jobs:
           cp MediAgenda/v12_overrides/PrescriptionOcrParser.kt "$ROOT/app/src/main/java/com/mediagenda/app/ocr/PrescriptionOcrParser.kt"
           cp MediAgenda/v12_overrides/AppointmentOcrParser.kt "$ROOT/app/src/main/java/com/mediagenda/app/ocr/AppointmentOcrParser.kt"
           python3 MediAgenda/v12_overrides/apply_v12.py
-      - name: Print medication sections
+      - name: Print exact medication sections
         run: |
           FILE="build-src/MediAgenda_Android_v1/app/src/main/java/com/mediagenda/app/MainActivity.kt"
-          grep -n -E "showMedication|editMedication|recognizePrescription|capturePrescription|pendingPrescription|takePrescription|MedicationAdapter" "$FILE" || true
-          echo "---- 80-260 ----"
-          sed -n '80,260p' "$FILE"
-          echo "---- 260-470 ----"
-          sed -n '260,470p' "$FILE"
-          echo "---- 620-760 ----"
-          sed -n '620,760p' "$FILE"
+          echo "---- 40-115 ----"; sed -n '40,115p' "$FILE"
+          echo "---- 145-205 ----"; sed -n '145,205p' "$FILE"
+          echo "---- 440-570 ----"; sed -n '440,570p' "$FILE"
+          echo "---- 760-825 ----"; sed -n '760,825p' "$FILE"
