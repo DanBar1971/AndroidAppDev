@@ -128,6 +128,14 @@ jobs:
           python3 MediAgenda/v23_overrides/apply_v23_home.py
           python3 MediAgenda/v23_overrides/apply_v23_water.py
 
+      - name: Apply SaúdePrática v1.9.5 unified navigation and personal health
+        run: |
+          python3 MediAgenda/v24_overrides/apply_v24_navigation.py
+          python3 MediAgenda/v24_overrides/apply_v24_documents.py
+          python3 MediAgenda/v24_overrides/apply_v24_profile.py
+          python3 MediAgenda/v24_overrides/apply_v24_records.py
+          python3 MediAgenda/v24_overrides/apply_v24_intake.py
+
       - name: Report artwork readiness
         shell: bash
         run: |
@@ -158,14 +166,14 @@ jobs:
 
       - name: Prepare APK
         run: |
-          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk SaudePratica-v1.9.4-unsigned.apk
-          ls -lh SaudePratica-v1.9.4-unsigned.apk
+          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk SaudePratica-v1.9.5-unsigned.apk
+          ls -lh SaudePratica-v1.9.5-unsigned.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.4-INTERMEDIATE-unsigned
-          path: SaudePratica-v1.9.4-unsigned.apk
+          name: SaudePratica-v1.9.5-INTERMEDIATE-unsigned
+          path: SaudePratica-v1.9.5-unsigned.apk
           if-no-files-found: error
           retention-days: 30
 
@@ -182,16 +190,16 @@ jobs:
             --ks-key-alias "$SIGNING_ALIAS" \
             --ks-pass env:SIGNING_PASSWORD \
             --key-pass env:SIGNING_PASSWORD \
-            --out SaudePratica-v1.9.4-SIGNED.apk \
-            SaudePratica-v1.9.4-unsigned.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose SaudePratica-v1.9.4-SIGNED.apk
+            --out SaudePratica-v1.9.5-SIGNED.apk \
+            SaudePratica-v1.9.5-unsigned.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose SaudePratica-v1.9.5-SIGNED.apk
 
       - name: Upload signed APK
         if: ${{ env.HAS_SIGNING_KEY == 'true' && env.HAS_GRAPHICS == 'true' }}
         uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.4-SIGNED
-          path: SaudePratica-v1.9.4-SIGNED.apk
+          name: SaudePratica-v1.9.5-SIGNED
+          path: SaudePratica-v1.9.5-SIGNED.apk
           if-no-files-found: error
           retention-days: 30
 
