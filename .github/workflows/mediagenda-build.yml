@@ -56,19 +56,25 @@ jobs:
           cp MediAgenda/v12_overrides/AppointmentOcrParser.kt "$ROOT/app/src/main/java/com/mediagenda/app/ocr/AppointmentOcrParser.kt"
           python3 MediAgenda/v12_overrides/apply_v12.py
 
+      - name: Apply v1.3 medication box recognition
+        run: |
+          ROOT="build-src/MediAgenda_Android_v1"
+          cp MediAgenda/v13_overrides/MedicationBoxOcrParser.kt "$ROOT/app/src/main/java/com/mediagenda/app/ocr/MedicationBoxOcrParser.kt"
+          python3 MediAgenda/v13_overrides/apply_v13.py
+
       - name: Build APK
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleDebug
 
       - name: Prepare APK
         run: |
-          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/debug/app-debug.apk MediAgenda-v1.2-debug.apk
-          ls -lh MediAgenda-v1.2-debug.apk
+          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/debug/app-debug.apk MediAgenda-v1.3-debug.apk
+          ls -lh MediAgenda-v1.3-debug.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: MediAgenda-v1.2-debug
-          path: MediAgenda-v1.2-debug.apk
+          name: MediAgenda-v1.3-debug
+          path: MediAgenda-v1.3-debug.apk
           if-no-files-found: error
           retention-days: 30
