@@ -125,7 +125,7 @@ object MedicationBoxOcrParser {
             "IVA INCLU", "TITULAR DA AUTORIZ", "INTRODUÇÃO NO MERCADO",
             "INTRODUCAO NO MERCADO", "SOCIEDADE", "PORTUGAL", "INFARMED",
             "REGISTO N", "RUA ", "COMPRIMIDOS MG", "GENERIS®", "GRÜNENTHAL",
-            "GRUNENTHAL", "PENTAFARMA"
+            "GRUNENTHAL"
         )
         if (ignore.any { u.contains(it) }) return true
         if (u.matches(Regex("""^\d{4}[- ]\d{3}.*"""))) return true
