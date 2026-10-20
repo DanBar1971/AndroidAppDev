@@ -1,0 +1,65 @@
+name: MediAgenda Android Build
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "MediAgenda/**"
+      - ".github/workflows/mediagenda-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android 35
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Gradle 8.9
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Reconstruct MediAgenda source
+        run: |
+          mkdir -p build-src
+          cat MediAgenda/source/part_*.b64 > build-src/MediAgenda.zip.b64
+          base64 -d build-src/MediAgenda.zip.b64 > build-src/MediAgenda.zip
+          echo "f6c464cbd5025f8f478283db20e17ac8b71b9428dfec9f0e4a60295b95f54a77  build-src/MediAgenda.zip" | sha256sum -c -
+          unzip -q build-src/MediAgenda.zip -d build-src
+
+      - name: Build APK
+        working-directory: build-src/MediAgenda_Android_v1
+        run: gradle --no-daemon assembleDebug
+
+      - name: Prepare APK
+        run: |
+          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/debug/app-debug.apk MediAgenda-v1.0-debug.apk
+          ls -lh MediAgenda-v1.0-debug.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: MediAgenda-v1.0-debug
+          path: MediAgenda-v1.0-debug.apk
+          if-no-files-found: error
+          retention-days: 30
