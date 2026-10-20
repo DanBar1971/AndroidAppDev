@@ -98,6 +98,9 @@ jobs:
       - name: Apply SaúdePrática v1.9 document import and About
         run: python3 MediAgenda/v19_overrides/apply_v19.py
 
+      - name: Apply SaúdePrática v1.9.1 branded About
+        run: python3 MediAgenda/v20_overrides/apply_v20.py
+
       - name: Build APK
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleRelease
