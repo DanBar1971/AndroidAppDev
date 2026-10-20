@@ -182,8 +182,8 @@ new = '''    private fun recognizeAppointment(uri: Uri) {
 
     private fun appointmentMatchKey(ap: Appointment): String {
         val normalized = ap.activity.lowercase(Locale.ROOT)
-            .replace(Regex("""[^\\p{L}\\p{N}]+"""), " ").trim()
-        return "\${ap.date}|\${ap.time}|$normalized"
+            .replace(Regex("""[^\p{L}\p{N}]+"""), " ").trim()
+        return "${ap.date}|${ap.time}|$normalized"
     }
 
     private fun confirmImportedAppointments(candidates: List<Appointment>) {
@@ -199,11 +199,11 @@ new = '''    private fun recognizeAppointment(uri: Uri) {
                 appointmentMatchKey(a) in already -> " — JÁ REGISTADA"
                 else -> ""
             }
-            "\${a.date}  \${a.time}\\n$name\\n\${a.location}$suffix"
+            "${a.date}  ${a.time}\\n$name\\n${a.location}$suffix"
         }.toTypedArray()
 
         MaterialAlertDialogBuilder(this)
-            .setTitle("\${candidates.size} marcações encontradas")
+            .setTitle("${candidates.size} marcações encontradas")
             .setMessage("Confirme cada data, hora e descrição. Desmarque os resultados incorretos. As entradas já existentes não serão duplicadas. Pode editar cada ficha na Agenda depois de importar.")
             .setMultiChoiceItems(labels, selections) { _, idx, chosen -> selections[idx] = chosen }
             .setPositiveButton("Guardar selecionadas") { _, _ ->
