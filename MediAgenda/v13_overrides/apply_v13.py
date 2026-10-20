@@ -195,6 +195,9 @@ p = root / "app/build.gradle.kts"
 s = p.read_text(encoding="utf-8")
 s = s.replace('versionCode = 3', 'versionCode = 4')
 s = s.replace('versionName = "1.2.0"', 'versionName = "1.3.0"')
+# Stable package ID installs in parallel with earlier debug-signed builds.
+# Keep it constant in future updates; the application namespace stays unchanged.
+s = s.replace('applicationId = "com.mediagenda.app"', 'applicationId = "com.mediagenda.app.stable"')
 p.write_text(s, encoding="utf-8")
 
 print("MediAgenda v1.3 medication-box OCR patches applied")
