@@ -33,7 +33,6 @@ jobs:
           if [ ! -x "$SDKMANAGER" ]; then
             SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -n 1)"
           fi
-          echo "Using: $SDKMANAGER"
           yes | "$SDKMANAGER" --licenses >/dev/null || true
           "$SDKMANAGER" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
@@ -42,33 +41,13 @@ jobs:
         with:
           gradle-version: "8.9"
 
-      - name: Reconstruct MediAgenda source
+      - name: Reconstruct MediAgenda v1.1 source
         run: |
           mkdir -p build-src
-          cat MediAgenda/source/part_*.b64 > build-src/MediAgenda.zip.b64
-          base64 -d build-src/MediAgenda.zip.b64 > build-src/MediAgenda.zip
-          echo "f6c464cbd5025f8f478283db20e17ac8b71b9428dfec9f0e4a60295b95f54a77  build-src/MediAgenda.zip" | sha256sum -c -
-          unzip -q build-src/MediAgenda.zip -d build-src
-
-      - name: Apply MediAgenda source fixes
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path("build-src/MediAgenda_Android_v1/app/src/main/java/com/mediagenda/app/MainActivity.kt")
-          s = p.read_text(encoding="utf-8")
-          old = '''pendingPhotoUri=FileProvider.getUriForFile(this,"${BuildConfig.APPLICATION_ID}.fileprovider",file)
-                  takeAppointmentPhoto.launch(pendingPhotoUri)'''
-          new = '''val uri=FileProvider.getUriForFile(this,"${BuildConfig.APPLICATION_ID}.fileprovider",file)
-                  pendingPhotoUri=uri
-                  takeAppointmentPhoto.launch(uri)'''
-          if old not in s:
-              raise SystemExit("Camera URI block not found")
-          s = s.replace(old, new, 1)
-          s = s.replace("singleLine = true", "setSingleLine(true)")
-          s = s.replace("else singleLine=true", "else setSingleLine(true)")
-          p.write_text(s, encoding="utf-8")
-          PY
+          cat MediAgenda/source/v11_*.b64 > build-src/MediAgenda-v1.1.zip.b64
+          base64 -d build-src/MediAgenda-v1.1.zip.b64 > build-src/MediAgenda-v1.1.zip
+          echo "e4aad8173353eb61e1f776a58c2a18d0cb6fdd9197f3c8f0c8856e9575357253  build-src/MediAgenda-v1.1.zip" | sha256sum -c -
+          unzip -q build-src/MediAgenda-v1.1.zip -d build-src
 
       - name: Build APK
         working-directory: build-src/MediAgenda_Android_v1
@@ -76,13 +55,13 @@ jobs:
 
       - name: Prepare APK
         run: |
-          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/debug/app-debug.apk MediAgenda-v1.0-debug.apk
-          ls -lh MediAgenda-v1.0-debug.apk
+          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/debug/app-debug.apk MediAgenda-v1.1-debug.apk
+          ls -lh MediAgenda-v1.1-debug.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: MediAgenda-v1.0-debug
-          path: MediAgenda-v1.0-debug.apk
+          name: MediAgenda-v1.1-debug
+          path: MediAgenda-v1.1-debug.apk
           if-no-files-found: error
           retention-days: 30
