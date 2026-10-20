@@ -62,7 +62,7 @@ class HealthDocumentStore(private val context: Context, profileId: String) {
 
     private fun mime(uri: Uri): Pair<String, String> {
         val declared = context.contentResolver.getType(uri).orEmpty().lowercase()
-        val name = originalName(uri).lowercase()
+        val name = originalName(uri).ifBlank { uri.lastPathSegment.orEmpty() }.lowercase()
         return when {
             declared == "application/pdf" || name.endsWith(".pdf") -> "application/pdf" to ".pdf"
             declared == "image/png" || name.endsWith(".png") -> "image/png" to ".png"
