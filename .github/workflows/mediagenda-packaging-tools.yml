@@ -19,8 +19,10 @@ jobs:
           cp "$ANDROID_HOME/build-tools/35.0.0/zipalign" tools/zipalign
           cp "$ANDROID_HOME/build-tools/35.0.0/aapt2" tools/aapt2
           sudo apt-get update -qq
-          sudo apt-get install -y -qq libc++1-18
+          sudo apt-get install -y -qq libc++1-18 libc++abi1-18 libunwind-18
           cp /usr/lib/x86_64-linux-gnu/libc++.so.1 tools/libc++.so
+          cp "$(find /usr/lib -name 'libc++abi.so.1' -print -quit)" tools/libc++abi.so.1
+          cp "$(find /usr/lib -name 'libunwind.so.1' -print -quit)" tools/libunwind.so.1
           chmod +x tools/zipalign tools/aapt2
           LD_LIBRARY_PATH="$PWD/tools" tools/zipalign -h >/dev/null 2>&1 || true
           tar -czf android-packaging-tools.tar.gz tools
