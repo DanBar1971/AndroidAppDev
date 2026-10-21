@@ -41,4 +41,12 @@ old='(pdf|jpg)'
 assert old in s
 s=s.replace(old,'(pdf|jpg|png|webp|heic|heif)',1)
 store.write_text(s,encoding="utf-8")
+parser=Path("build-src/MediAgenda_Android_v1/app/src/main/java/com/mediagenda/app/labs/ClinicalLabParser.kt")
+p=parser.read_text(encoding="utf-8")
+old="return data.distinctBy{it.parameter.lowercase() to it.page} to section"
+assert old in p
+# Repeated measurements on the same page can be distinct results and must
+# remain available for review, not be silently discarded.
+parser.write_text(p.replace(old,"return data to section",1),encoding="utf-8")
+print("Clinical Lab OCR keeps repeated parameters for independent user review.")
 print("Lab reports retain source page/section and correct original image file types.")
