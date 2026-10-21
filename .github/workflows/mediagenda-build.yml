@@ -202,7 +202,9 @@ jobs:
         run: python3 MediAgenda/v37_overrides/apply_v37_comms_medinfo.py
 
       - name: Apply SaúdePrática v1.9.19 clinical analyses, postal code and communications
-        run: python3 MediAgenda/v38_overrides/apply_v38.py
+        run: |
+          python3 MediAgenda/v38_overrides/apply_v38.py
+          python3 MediAgenda/v38_overrides/apply_v38_fix_review.py
 
       - name: Report artwork readiness
         shell: bash
