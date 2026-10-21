@@ -224,11 +224,10 @@ class WorkMedicineStore(private val context:Context,private val profileId:String
                             sha.update(buffer,0,n);output.write(buffer,0,n)
                         }
                     }
-                    if(fileBytes==0L){dst.delete();skipped++;zip.closeEntry();continue}
+                    if(fileBytes==0L){dst.delete();skipped++;continue}
                     val digest=sha.digest().joinToString(""){"%02x".format(it)}
                     if(preexisting.contains(digest)||existing.any{it.sha256==digest}){
                         dst.delete();duplicates++
-                        zip.closeEntry()
                         continue
                     }
                     val group=WorkplaceClassifier.group(path)
