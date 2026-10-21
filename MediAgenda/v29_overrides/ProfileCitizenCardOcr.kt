@@ -72,10 +72,97 @@ object ProfileCitizenCardOcr {
         }
         return null
     }
+
+    // Read the ICAO TD1 machine-readable lines from the reverse side.
+    // Numeric fields are accepted only when their official check digit matches.
+    private fun checkDigit(input:String):Char {
+        val weights=intArrayOf(7,3,1)
+        val result=input.withIndex().sumOf { (i,ch) ->
+            val value=when(ch){
+                in '0'..'9'->ch-'0'
+                in 'A'..'Z'->ch-'A'+10
+                '<'->0
+                else->return 'X'
+            }
+            value*weights[i%3]
+        }
+        return ('0'.code+result%10).toChar()
+    }
+    private fun dateFromMrz(part:String,birth:Boolean):String? {
+        if(part.length!=6||!part.all(Char::isDigit))return null
+        val current=LocalDate.now()
+        val year=2000+part.take(2).toInt()
+        val y=if(birth&&year>current.year)year-100 else year
+        if(!birth&&(y<current.year-20||y>current.year+35))return null
+        val parsed=runCatching {
+            LocalDate.of(y,part.substring(2,4).toInt(),part.substring(4,6).toInt())
+        }.getOrNull()?:return null
+        if(birth&&(parsed.isAfter(current)||parsed.isBefore(current.minusYears(120))))return null
+        return parsed.format(DateTimeFormatter.ofPattern("dd/MM/uuuu"))
+    }
+    private fun mrz(raw:String):Map<String,String> {
+        val lines=rows(raw).map{ canonical(it).replace(Regex("""[^A-Z0-9<]"""),"") }
+        val first=lines.firstOrNull{it.startsWith("I<PRT")&&it.length>=15}
+        val second=lines.firstOrNull {
+            it.length>=18&&it.take(6).all(Char::isDigit)&&it[7] in "MFX<"&&
+                it.substring(8,14).all(Char::isDigit)
+        }
+        val third=lines.firstOrNull{it.length>=18 && it.contains("<<") &&
+            !it.startsWith("I<PRT") && it.takeWhile{c->c!='<'}.all{c->c in 'A'..'Z'}}
+        val fields=linkedMapOf<String,String>()
+        if(first!=null){
+            val id=first.substring(5,14)
+            if(checkDigit(id)==first[14])fields["cc_number"]=id.trimEnd('<')
+        }
+        if(second!=null){
+            val dob=second.substring(0,6)
+            val expires=second.substring(8,14)
+            if(checkDigit(dob)==second[6])
+                dateFromMrz(dob,true)?.let{fields["birth_date"]=it}
+            if(checkDigit(expires)==second[14])
+                dateFromMrz(expires,false)?.let{fields["cc_valid_until"]=it}
+            when(second[7]) {
+                'F'->fields["gender"]="Feminino"
+                'M'->fields["gender"]="Masculino"
+            }
+            if(second.substring(15,18)=="PRT")fields["nationality"]="Portuguesa"
+        }
+        if(third!=null){
+            val names=third.split("<<",limit=2)
+            if(names.size==2){
+                val firstNames=names[1].replace('<',' ').trim()
+                val lastNames=names[0].replace('<',' ').trim()
+                if(firstNames.length>=3&&lastNames.length>=3)
+                    fields["full_name"]=firstNames+" "+lastNames
+            }
+        }
+        return fields
+    }
+    private fun groupedBackNumbers(lines:List<String>):Triple<String?,String?,String?> {
+        val rowIndex=lines.indexOfFirst{
+            val n=canonical(it)
+            listOf("IDENTIFICACAO FISCAL","SEGURANCA SOCIAL","UTENTE DE SAUDE")
+                .count { tag->n.contains(tag) } >= 2
+        }
+        if(rowIndex>=0){
+            val next=lines.drop(rowIndex+1).take(4)
+                .takeWhile{!canonical(it).startsWith("I<PRT")}.joinToString(" ")
+            val m=Regex("""(?<!\d)(\d{9})\s+(\d{11})\s+(\d{9})(?!\d)""")
+                .find(next)
+            if(m!=null)return Triple(m.groupValues[1].takeIf(CitizenCardOcrParser::validNif),
+                m.groupValues[2],m.groupValues[3])
+        }
+        val old=CitizenCardOcrParser.parse(lines.joinToString("\n"))
+        return Triple(old.nif.takeIf(CitizenCardOcrParser::validNif),
+            labelledNumber(lines,listOf("SEGURANCA SOCIAL","NISS"),11),
+            old.snsNumber.takeIf{it.matches(Regex("""\d{9}"""))})
+    }
+
     fun propose(frontText:String,backText:String):List<Proposed>{
         val front=rows(frontText)
         val back=rows(backText)
         val list=linkedMapOf<String,Proposed>()
+        val mrz=mrz(backText)
         fun add(key:String,label:String,value:String?){
             if(!value.isNullOrBlank())list[key]=Proposed(key,label,value.trim())
         }
@@ -87,23 +174,29 @@ object ProfileCitizenCardOcr {
         val given=nextValue(front,listOf("NOME(S)","GIVEN NAME"))
         if(plausibleName(surname)&&plausibleName(given))
             add("full_name","Nome completo","$given $surname")
-        add("birth_date","Data de nascimento",labelledDate(front,listOf(
+        else add("full_name","Nome completo",mrz["full_name"])
+        add("birth_date","Data de nascimento",mrz["birth_date"] ?: labelledDate(front,listOf(
             "DATA DE NASCIMENTO","DATE OF BIRTH","NASCIMENTO")))
-        add("cc_valid_until","Validade do CC",labelledDate(front,listOf(
+        add("cc_valid_until","Validade do CC",mrz["cc_valid_until"] ?: labelledDate(front,listOf(
             "VALIDADE","EXPIRY DATE")))
-        add("gender","Género",when(canonical(nextValue(front,listOf("SEXO","SEX")))){
-            "F","FEMININO","FEMALE"->"Feminino"
-            "M","MASCULINO","MALE"->"Masculino"
+        val sex=canonical(nextValue(front,listOf("SEXO","SEX")))
+        add("gender","Género",mrz["gender"] ?: when{
+            sex=="F"||sex.startsWith("F ")||sex=="FEMININO"->"Feminino"
+            sex=="M"||sex.startsWith("M ")||sex=="MASCULINO"->"Masculino"
             else->null
         })
         val cc=nextValue(front,listOf("DOCUMENTO","DOCUMENT NO","DOC. N"))
-        add("cc_number","Número do CC",numberCC.find(canonical(cc))?.value)
+        val printedCc=Regex("""(?<!\d)(\d{8})\s*(\d)\s*([A-Z0-9]{3})(?![A-Z0-9])""")
+            .find(canonical(cc))?.let {
+                it.groupValues[1]+" "+it.groupValues[2]+" "+it.groupValues[3]
+            }
+        add("cc_number","Número do CC",printedCc ?: mrz["cc_number"])
         // The Portuguese card may show nationality, height and family lineage.
         // Extract only explicitly labelled values; never infer missing content.
-        val nationality=nextValue(front,listOf("NACIONALIDADE","NATIONALITY"))
-            .replace(Regex("""[^\p{L} /-]"""),"").trim()
-        if(nationality.length in 2..45)
-            add("nationality","Nacionalidade",nationality)
+        val nationality=canonical(nextValue(front,listOf("NACIONALIDADE","NATIONALITY")))
+        add("nationality","Nacionalidade",mrz["nationality"] ?:
+            if(Regex("""\bPRT\b""").containsMatchIn(nationality)||nationality=="PORTUGUESA")
+                "Portuguesa" else null)
         val height=nextValue(front,listOf("ALTURA","HEIGHT"))
         val heightMatch=Regex("""\b([1-2])[.,]?(\d{2})\b""").find(height)
         val cm=heightMatch?.let {
@@ -118,13 +211,10 @@ object ProfileCitizenCardOcr {
         val mother=nextValue(back,listOf("NOME DA MAE","MOTHER NAME","MAE:"))
         if(plausibleName(father)) add("father_name","Nome do pai",father)
         if(plausibleName(mother)) add("mother_name","Nome da mãe",mother)
-        val backNumbers=CitizenCardOcrParser.parse(backText)
-        add("nif","NIF",backNumbers.nif.takeIf(CitizenCardOcrParser::validNif))
-        add("sns_number","Número de utente SNS",backNumbers.snsNumber.takeIf{
-            it.matches(Regex("""\d{9}"""))
-        })
-        add("niss","NISS",labelledNumber(back,
-            listOf("SEGURANCA SOCIAL","SOCIAL SECURITY","NISS"),11))
+        val numbers=groupedBackNumbers(back)
+        add("nif","NIF",numbers.first)
+        add("sns_number","Número de utente SNS",numbers.third)
+        add("niss","NISS",numbers.second)
         return list.values.toList()
     }
 }
