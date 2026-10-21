@@ -101,11 +101,11 @@ object ProfileCitizenCardOcr {
         // The Portuguese card may show nationality, height and family lineage.
         // Extract only explicitly labelled values; never infer missing content.
         val nationality=nextValue(front,listOf("NACIONALIDADE","NATIONALITY"))
-            .replace(Regex("""[^\\p{L} /-]"""),"").trim()
+            .replace(Regex("""[^\p{L} /-]"""),"").trim()
         if(nationality.length in 2..45)
             add("nationality","Nacionalidade",nationality)
         val height=nextValue(front,listOf("ALTURA","HEIGHT"))
-        val heightMatch=Regex("""\\b([1-2])[.,]?(\\d{2})\\b""").find(height)
+        val heightMatch=Regex("""\b([1-2])[.,]?(\d{2})\b""").find(height)
         val cm=heightMatch?.let {
             val number=it.groupValues[1].toInt()*100+it.groupValues[2].toInt()
             number.takeIf{h->h in 100..240}?.toString()
