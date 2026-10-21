@@ -29,8 +29,8 @@ replacement='''    private fun scanSavedCitizenCard(side:String){
             val base=if(side=="cc_front")ProfileCitizenCardOcr.propose(full,"")
                 else ProfileCitizenCardOcr.propose("",full)
             val secondary=if(side=="cc_front")ProfileCitizenCardOcr.propose(cropped,"")
-                else ProfileCitizenCardOcr.propose("","FILIACAO\\\\n"+cropped+
-                    "\\\\nIDENTIFICACAO FISCAL")
+                else ProfileCitizenCardOcr.propose("","FILIACAO\\n"+cropped+
+                    "\\nIDENTIFICACAO FISCAL")
             val combined=linkedMapOf<String,ProfileCitizenCardOcr.Proposed>()
             base.forEach{combined[it.key]=it}
             secondary.forEach{field->
@@ -53,8 +53,8 @@ replacement='''    private fun scanSavedCitizenCard(side:String){
             }
             val raw=buildString{
                 append("LEITURA COMPLETA — ").append(caption)
-                append("\\\\n").append(full)
-                append("\\\\n\\\\nZONA AMPLIADA\\\\n").append(cropped)
+                append("\\n").append(full)
+                append("\\n\\nZONA AMPLIADA\\n").append(cropped)
             }
             showOcrReview(combined.values.toList(),raw)
         }
