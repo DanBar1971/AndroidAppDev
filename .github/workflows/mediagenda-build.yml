@@ -6,6 +6,11 @@ on:
     paths:
       - "MediAgenda/**"
       - ".github/workflows/mediagenda-build.yml"
+  pull_request:
+    branches: [master]
+    paths:
+      - "MediAgenda/**"
+      - ".github/workflows/mediagenda-build.yml"
   workflow_dispatch:
 
 permissions:
