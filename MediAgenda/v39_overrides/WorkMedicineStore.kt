@@ -142,6 +142,18 @@ class WorkMedicineStore(private val context:Context,private val profileId:String
             return true
         }catch(e:Exception){dst.delete();throw e}
     }
+    fun createManual(title:String,category:String):WorkDocument{
+        require(category in WorkplaceClassifier.types){"Categoria inválida."}
+        val clean=title.trim().take(105)
+        require(clean.isNotBlank()){"Indica uma descrição."}
+        val record=WorkDocument(
+            UUID.randomUUID().toString(),clean,category,
+            "Registo manual","","","","","","Por confirmar",
+            "","","","","","","","","",System.currentTimeMillis()
+        )
+        persist(all()+record)
+        return record
+    }
     fun add(uri:Uri,title:String,category:String):WorkDocument{
         require(category in WorkplaceClassifier.types){"Categoria inválida."}
         val type=context.contentResolver.getType(uri).orEmpty()
