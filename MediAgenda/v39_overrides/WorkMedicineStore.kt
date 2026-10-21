@@ -18,6 +18,7 @@ data class WorkDocument(
     val category:String,
     val examType:String,
     val date:String,
+    val time:String,
     val employer:String,
     val clinic:String,
     val doctor:String,
@@ -49,7 +50,7 @@ class WorkMedicineStore(private val context:Context,private val profileId:String
     private val maxZip=160L*1024*1024
     private fun obj(a:WorkDocument)=JSONObject()
         .put("id",a.id).put("name",a.name).put("category",a.category)
-        .put("examType",a.examType).put("date",a.date)
+        .put("examType",a.examType).put("date",a.date).put("time",a.time)
         .put("employer",a.employer).put("clinic",a.clinic)
         .put("doctor",a.doctor).put("aptitude",a.aptitude)
         .put("restrictions",a.restrictions).put("notes",a.notes)
@@ -59,7 +60,8 @@ class WorkMedicineStore(private val context:Context,private val profileId:String
         .put("createdAt",a.createdAt)
     private fun decode(o:JSONObject)=WorkDocument(
         o.optString("id"),o.optString("name"),o.optString("category"),
-        o.optString("examType"),o.optString("date"),o.optString("employer"),
+        o.optString("examType"),o.optString("date"),o.optString("time"),
+        o.optString("employer"),
         o.optString("clinic"),o.optString("doctor"),
         o.optString("aptitude"),o.optString("restrictions"),
         o.optString("notes"),o.optString("nextReview"),
@@ -130,7 +132,7 @@ class WorkMedicineStore(private val context:Context,private val profileId:String
             val kind=WorkplaceClassifier.group(path)
             val type=WorkplaceClassifier.type(path)
             val item=WorkDocument(id,WorkplaceClassifier.title(path,type),kind,
-                type,WorkplaceClassifier.date(path),"","","",
+                type,WorkplaceClassifier.date(path),"","","","",
                 "Por confirmar","","","","",path.take(220),
                 dst.name,format.second,sha,"",System.currentTimeMillis())
             existing.add(item)
@@ -221,7 +223,7 @@ class WorkMedicineStore(private val context:Context,private val profileId:String
                     val examType=WorkplaceClassifier.type(path)
                     val record=WorkDocument(UUID.randomUUID().toString(),
                         WorkplaceClassifier.title(path,examType),group,examType,
-                        WorkplaceClassifier.date(path),"","","","Por confirmar",
+                        WorkplaceClassifier.date(path),"","","","","Por confirmar",
                         "","","","",path.take(220),filename,
                         extension(path)!!.second,digest,"",System.currentTimeMillis())
                     existing.add(record)
