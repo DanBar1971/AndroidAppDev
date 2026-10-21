@@ -160,8 +160,8 @@ methods='''    private fun scanSavedCitizenCard(){
                 if(raw.isBlank()){input.error="Campo vazio";return@setOnClickListener}
                 val accepted=when(field.key){
                     "nif"->CitizenCardOcrParser.validNif(raw)
-                    "sns_number"->raw.matches(Regex("""\\d{9}"""))
-                    "niss"->raw.matches(Regex("""\\d{11}"""))
+                    "sns_number"->raw.matches(Regex("""\d{9}"""))
+                    "niss"->raw.matches(Regex("""\d{11}"""))
                     "birth_date","cc_valid_until"->runCatching {
                         LocalDate.parse(raw,DateTimeFormatter.ofPattern("dd/MM/uuuu")
                             .withResolverStyle(ResolverStyle.STRICT))
