@@ -133,7 +133,7 @@ class WorkMedicineStore(private val context:Context,private val profileId:String
             val type=WorkplaceClassifier.type(path)
             val item=WorkDocument(id,WorkplaceClassifier.title(path,type),kind,
                 type,WorkplaceClassifier.date(path),"","","","",
-                "Por confirmar","","","","",path.take(220),
+                "Por confirmar","","","",path.take(220),
                 dst.name,format.second,sha,"",System.currentTimeMillis())
             existing.add(item)
             try{persist(existing)}catch(e:Exception){
@@ -149,7 +149,7 @@ class WorkMedicineStore(private val context:Context,private val profileId:String
         val record=WorkDocument(
             UUID.randomUUID().toString(),clean,category,
             "Registo manual","","","","","","Por confirmar",
-            "","","","","","","","","",System.currentTimeMillis()
+            "","","","","","","","",System.currentTimeMillis()
         )
         persist(all()+record)
         return record
@@ -235,7 +235,7 @@ class WorkMedicineStore(private val context:Context,private val profileId:String
                     val record=WorkDocument(UUID.randomUUID().toString(),
                         WorkplaceClassifier.title(path,examType),group,examType,
                         WorkplaceClassifier.date(path),"","","","","Por confirmar",
-                        "","","","",path.take(220),filename,
+                        "","","",path.take(220),filename,
                         extension(path)!!.second,digest,"",System.currentTimeMillis())
                     existing.add(record)
                     try{
