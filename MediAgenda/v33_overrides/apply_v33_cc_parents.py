@@ -28,12 +28,12 @@ s=s[:start]+'''        // Old CC back layout: FILIAÇÃO / PARENTS, then the two
                 !n.contains("HEALTH NO")
         }.take(4)
         fun cleanParent(value:String):String=
-            value.trim().replace(Regex("""\\\s+""")," ")
-                .replace(Regex("""(?i)^(PAI|MAE|FATHER|MOTHER)\\\s*[:.]\\\s*"""),"")
+            value.trim().replace(Regex("""\s+""")," ")
+                .replace(Regex("""(?i)^(PAI|MAE|FATHER|MOTHER)\s*[:.]\s*"""),"")
                 .trim()
         var father=nextValue(back,listOf("NOME DO PAI","FATHER NAME","PAI:"))
         var mother=nextValue(back,listOf("NOME DA MAE","MOTHER NAME","MAE:"))
-        val divider=Regex("""\\\s*[•·*|]\\\s*""")
+        val divider=Regex("""\s*[•·*|]\s*""")
         val pivot=candidates.indexOfFirst { row ->
             divider.containsMatchIn(row) && row.any(Char::isLetter)
         }
