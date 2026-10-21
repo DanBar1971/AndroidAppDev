@@ -69,7 +69,7 @@ class AppPinActivity:AppCompatActivity() {
             setPadding(dp(18),dp(12),dp(18),dp(12))
             setBackgroundColor(if(dark)Color.rgb(5,22,32)else Color.rgb(246,249,250))
         }
-        val scroll=ScrollView(this).apply{fillViewport=true}
+        val scroll=ScrollView(this).apply{isFillViewport=true}
         content=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER
         }
