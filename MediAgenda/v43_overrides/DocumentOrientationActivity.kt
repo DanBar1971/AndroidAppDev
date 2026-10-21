@@ -292,10 +292,10 @@ class DocumentOrientationActivity:AppCompatActivity(){
                         "DATA","EXAME","RESULTADO","RELATORIO",
                         "VISAO","AUDIO","FARMACIA","NIF","SNS")
                     val score=(normalized.count{it.isLetter()}/22)+
-                        clues.sumOf{if(normalized.contains(it))18 else 0}+
-                        result.textBlocks.sumOf{block->
+                        clues.count{normalized.contains(it)}*18+
+                        result.textBlocks.map{block->
                             block.lines.count{it.text.length>=4}
-                        }
+                        }.sum()
                     scores.add(turn to score);next()
                 }.addOnFailureListener{scores.add(turn to 0);next()}
         }
