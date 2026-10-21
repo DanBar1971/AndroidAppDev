@@ -24,4 +24,21 @@ new='''                val values=entries.mapNotNull { (original,group)->
 assert old in s
 s=s.replace(old,new,1)
 file.write_text(s,encoding="utf-8")
-print("Review keeps category and source PDF page for every confirmed laboratory value.")
+store=Path("build-src/MediAgenda_Android_v1/app/src/main/java/com/mediagenda/app/labs/ClinicalLabStore.kt")
+s=store.read_text(encoding="utf-8")
+old='        val suffix=if(mime=="application/pdf")".pdf" else ".jpg"'
+new='''        val suffix=when(mime){
+            "application/pdf"->".pdf"
+            "image/png"->".png"
+            "image/webp"->".webp"
+            "image/heic"->".heic"
+            "image/heif"->".heif"
+            else->".jpg"
+        }'''
+assert old in s
+s=s.replace(old,new,1)
+old='(pdf|jpg)'
+assert old in s
+s=s.replace(old,'(pdf|jpg|png|webp|heic|heif)',1)
+store.write_text(s,encoding="utf-8")
+print("Lab reports retain source page/section and correct original image file types.")
