@@ -85,7 +85,7 @@ assert src.count(old)==1, "dashboard checklist original missing"
 src=src.replace(old,new,1)
 # Use UI theme logic directly from existing main rather than an undocumented darkMode field:
 src=src.replace('if(darkMode)Color.rgb(96,217,201)else Color.rgb(8,139,127)',
-                'if(isDarkTheme)Color.rgb(96,217,201)else Color.rgb(8,139,127)')
+                'if(isDarkPalette)Color.rgb(96,217,201)else Color.rgb(8,139,127)')
 src=src.replace('val boxes=options.mapIndexed{index,name->',
                 'options.forEachIndexed{index,name->')
 # visual subtitle
