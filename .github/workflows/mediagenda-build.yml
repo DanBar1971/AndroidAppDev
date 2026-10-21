@@ -210,6 +210,7 @@ jobs:
         run: |
           python3 MediAgenda/v39_overrides/apply_v39.py
           python3 MediAgenda/v39_overrides/apply_v39_specialties.py
+          python3 MediAgenda/v39_overrides/apply_v39_classification.py
 
       - name: Report artwork readiness
         shell: bash
