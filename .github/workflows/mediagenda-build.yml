@@ -207,7 +207,9 @@ jobs:
           python3 MediAgenda/v38_overrides/apply_v38_fix_review.py
 
       - name: Apply SaúdePrática v1.9.20 Medicina do Trabalho MCG
-        run: python3 MediAgenda/v39_overrides/apply_v39.py
+        run: |
+          python3 MediAgenda/v39_overrides/apply_v39.py
+          python3 MediAgenda/v39_overrides/apply_v39_specialties.py
 
       - name: Report artwork readiness
         shell: bash
