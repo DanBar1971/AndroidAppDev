@@ -98,6 +98,26 @@ object ProfileCitizenCardOcr {
         })
         val cc=nextValue(front,listOf("DOCUMENTO","DOCUMENT NO","DOC. N"))
         add("cc_number","Número do CC",numberCC.find(canonical(cc))?.value)
+        // The Portuguese card may show nationality, height and family lineage.
+        // Extract only explicitly labelled values; never infer missing content.
+        val nationality=nextValue(front,listOf("NACIONALIDADE","NATIONALITY"))
+            .replace(Regex("""[^\\p{L} /-]"""),"").trim()
+        if(nationality.length in 2..45)
+            add("nationality","Nacionalidade",nationality)
+        val height=nextValue(front,listOf("ALTURA","HEIGHT"))
+        val heightMatch=Regex("""\\b([1-2])[.,]?(\\d{2})\\b""").find(height)
+        val cm=heightMatch?.let {
+            val number=it.groupValues[1].toInt()*100+it.groupValues[2].toInt()
+            number.takeIf{h->h in 100..240}?.toString()
+        }
+        add("height_cm","Altura (cm)",cm)
+        val birthPlace=nextValue(front+back,listOf("NATURALIDADE","LOCAL DE NASCIMENTO","PLACE OF BIRTH"))
+        if(birthPlace.length in 3..100 && birthPlace.none(Char::isDigit))
+            add("birth_place","Naturalidade",birthPlace)
+        val father=nextValue(back,listOf("NOME DO PAI","FATHER NAME","PAI:"))
+        val mother=nextValue(back,listOf("NOME DA MAE","MOTHER NAME","MAE:"))
+        if(plausibleName(father)) add("father_name","Nome do pai",father)
+        if(plausibleName(mother)) add("mother_name","Nome da mãe",mother)
         val backNumbers=CitizenCardOcrParser.parse(backText)
         add("nif","NIF",backNumbers.nif.takeIf(CitizenCardOcrParser::validNif))
         add("sns_number","Número de utente SNS",backNumbers.snsNumber.takeIf{
