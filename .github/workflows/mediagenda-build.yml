@@ -216,6 +216,7 @@ jobs:
         run: |
           python3 MediAgenda/v40_overrides/apply_v40.py
           python3 MediAgenda/v40_overrides/apply_v40_expenses.py
+          python3 MediAgenda/v40_overrides/apply_v40_fixes.py
 
       - name: Report artwork readiness
         shell: bash
