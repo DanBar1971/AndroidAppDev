@@ -27,6 +27,10 @@ work=base/"WorkMedicineActivity.kt"
 swap(work,'head.addView(text("🏥 Saúde Ocupacional",23f,true))',
     'head.addView(text("🏥 Situação Clínica",23f,true))',
     "clinical situation title, internal content unchanged")
+target=base/"expenses/ExpenseReceiptOcrParser.kt"
+target.parent.mkdir(parents=True,exist_ok=True)
+target.write_text(Path("MediAgenda/v47_overrides/ExpenseReceiptOcrParser.kt")
+    .read_text(encoding="utf-8"),encoding="utf-8")
 expense=base/"HealthExpensesActivity.kt"
 swap(expense,'import android.graphics.Color', '''import android.graphics.Color
 import android.graphics.Bitmap
