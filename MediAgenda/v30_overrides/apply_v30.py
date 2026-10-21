@@ -12,7 +12,7 @@ new='''            if(proposals.isEmpty()) {
                         .setMessage("O cartão foi lido parcialmente, mas não foi possível associar com segurança os dados aos campos. Podes consultar o texto reconhecido sem o guardar.")
                         .setPositiveButton("Ver texto lido") { _,_ ->
                             val view=TextView(this).apply{
-                                text="FRENTE:\\\\n"+frontText+"\\\\n\\\\nVERSO:\\\\n"+backText
+                                text="FRENTE:\\n"+frontText+"\\n\\nVERSO:\\n"+backText
                                 setTextIsSelectable(true)
                                 setTextColor(if(dark)Color.WHITE else Color.rgb(18,35,48))
                                 setPadding(dp(18),dp(16),dp(18),dp(16))
