@@ -42,8 +42,7 @@ replace_one(activity,
     '''import androidx.appcompat.app.AppCompatActivity''',
     '''import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricPrompt
-import androidx.core.content.ContextCompat''',
+import androidx.biometric.BiometricPrompt''',
     "biometric imports")
 replace_one(activity,
     '''    private var authenticated=false
