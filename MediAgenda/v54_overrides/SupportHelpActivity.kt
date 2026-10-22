@@ -55,7 +55,7 @@ class SupportHelpActivity:AppCompatActivity(){
         top.addView(text("SaúdePrática",21f),LinearLayout.LayoutParams(0,dp(54),1f))
         body.addView(top)
         if(intent.getStringExtra(MODE)==CONTACT)showContact(body)else showGuide(body)
-        val scroll=ScrollView(this).apply{fillViewport=false;addView(body)}
+        val scroll=ScrollView(this).apply{isFillViewport=false;addView(body)}
         setContentView(scroll)
     }
     private fun text(value:String,size:Float=16f,color:Int=light):TextView=TextView(this).apply{
