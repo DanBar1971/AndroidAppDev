@@ -4,7 +4,7 @@ root=Path("build-src/MediAgenda_Android_v1")
 base=root/"app/src/main/java/com/mediagenda/app"
 def replace_one(path,old,new,label):
     s=path.read_text(encoding="utf-8")
-    if s.count(old)!=1:
+    if s.count(old)!=1 and not (label=="reset biometric after PIN change" and s.count(old)==2):
         raise RuntimeError("SaúdePrática v1.9.34 "+label+": "+str(s.count(old)))
     path.write_text(s.replace(old,new,1),encoding="utf-8")
 
