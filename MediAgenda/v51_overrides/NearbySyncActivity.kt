@@ -121,7 +121,7 @@ class NearbySyncActivity:AppCompatActivity(){
         busy=false
         if(mode=="host"){
             show("A anunciar este telemóvel. No outro escolhe 'Procurar'.")
-            connections.startAdvertising("SaúdePrática · "+Build.MODEL,service,lifecycle,
+            connections.startAdvertising("SaúdePrática · "+Build.MODEL,service,connectionLifecycle,
                 AdvertisingOptions.Builder().setStrategy(strategy).build())
                 .addOnFailureListener{show("Erro ao anunciar: "+it.localizedMessage+
                     ". Verifica se Bluetooth e Wi-Fi estão ligados.")}
@@ -142,7 +142,7 @@ class NearbySyncActivity:AppCompatActivity(){
                 devices.toMap().forEach{(id,label)->
                     discovered.addView(button("Ligar a $label"){
                         show("A pedir ligação a $label…")
-                        connections.requestConnection("SaúdePrática · "+Build.MODEL,id,lifecycle)
+                        connections.requestConnection("SaúdePrática · "+Build.MODEL,id,connectionLifecycle)
                             .addOnFailureListener{show("Falhou a ligação: "+it.localizedMessage)}
                     })
                 }
@@ -153,7 +153,7 @@ class NearbySyncActivity:AppCompatActivity(){
             runOnUiThread{discovered.removeAllViews()}
         }
     }
-    private val lifecycle=object:ConnectionLifecycleCallback(){
+    private val connectionLifecycle=object:ConnectionLifecycleCallback(){
         override fun onConnectionInitiated(id:String,info:ConnectionInfo){
             runOnUiThread{
                 MaterialAlertDialogBuilder(this@NearbySyncActivity)

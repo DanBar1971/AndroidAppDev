@@ -40,7 +40,7 @@ patch(manifest,'        <activity android:name=".MainActivity" android:exported=
 gradle=root/'app/build.gradle.kts'
 patch(gradle,'    implementation("com.google.android.gms:play-services-location:21.3.0")',
 '''    implementation("com.google.android.gms:play-services-location:21.3.0")
-    implementation("com.google.android.gms:play-services-nearby:19.5.1")''',"Nearby dependency")
+    implementation("com.google.android.gms:play-services-nearby:19.3.0")''',"Nearby dependency")
 patch(gradle,'versionCode = 41','versionCode = 42',"code")
 patch(gradle,'versionName = "1.9.31"','versionName = "1.9.32"',"name")
 print('v1.9.32: Nearby Connections bilateral sync, per-person additive merge with safe conflicts')
