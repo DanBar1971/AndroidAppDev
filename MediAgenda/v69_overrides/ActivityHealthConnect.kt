@@ -12,7 +12,7 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
 import android.health.connect.AggregateRecordsRequest
 import android.health.connect.AggregateRecordsResponse
-import android.health.connect.AggregationType
+import android.health.connect.datatypes.AggregationType
 import android.health.connect.HealthConnectException
 import android.health.connect.HealthConnectManager
 import android.health.connect.HealthPermissions
