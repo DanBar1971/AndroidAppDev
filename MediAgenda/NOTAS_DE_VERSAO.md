@@ -2,6 +2,15 @@
 
 A cada nova versão da SaúdePrática, entregar **sempre**, juntamente com o APK assinado e o ZIP opcional, um texto pronto a copiar e partilhar com as pessoas que testam a aplicação.
 
+## Regra permanente de entrega ao utilizador
+
+**Obrigatório para todas as próximas versões, sem ser preciso voltar a pedir:**
+- Na mesma resposta onde é enviada a ligação da **APK instalável**, incluir também um **texto de divulgação completo, pronto a copiar e a reenviar**, em português de Portugal.
+- O texto deve trazer a versão, lista objetiva das **novidades** e **correções**, forma de instalar/atualizar sem perder dados, e — quando relevante — uma indicação breve de como testar.
+- Escrever o texto **no corpo da resposta**, não apenas dentro de um TXT/ZIP; criar também um ficheiro de notas opcional para anexar à APK.
+- Não anunciar melhorias que não foram implementadas ou validadas; distinguir compilação e testes reais.
+- Se o lançamento estiver bloqueado (APK não compilada/assinada), explicar o estado e **não escrever uma mensagem a apresentá-la como disponível**.
+
 ## O que cada entrega deve incluir
 
 1. **Versão exata** e, se fizer sentido, data da atualização.
