@@ -37,3 +37,7 @@ Não declarar uma correção como validada no telemóvel apenas porque o código
 **Nota:** esta versão compilou e foi assinada, mas a nova câmara ainda precisa de ser validada nos Xiaomi dos testers.
 
 📎 **APK:** anexar o ficheiro do lançamento correspondente.
+
+## Regra obrigatória de Ajuda atualizada
+
+Em **todas as novas versões** que acrescentem, retirem, alterem, movam ou renomeiem módulos e funcionalidades, atualizar também **Mais → Ajuda** (guia ilustrado e instruções relevantes), em todos os idiomas suportados. Confirmar que não ficam nomes de módulos ou caminhos antigos. Este requisito deve ser verificado juntamente com a compilação e referido no texto de atualização entregue com a APK.
