@@ -1,0 +1,31 @@
+name: SaúdePrática — Preparar modelo alimentar
+on:
+  push:
+    paths:
+      - ".github/workflows/food-model-assets.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  fetch-food-model:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Transferir modelo alimentar Google AIY (Apache-2.0)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p food-model
+          curl -fL --retry 3 --connect-timeout 20 --max-time 180             'https://storage.googleapis.com/tfhub-lite-models/google/lite-model/aiy/vision/classifier/food_V1/1.tflite'             -o food-model/food_v1.tflite
+          curl -fL --retry 3 --connect-timeout 20 --max-time 60             'https://www.gstatic.com/aihub/tfhub/labelmaps/aiy_food_V1_labelmap.csv'             -o food-model/labels.csv
+          test "$(stat -c%s food-model/food_v1.tflite)" -gt 1000000
+          test "$(wc -l < food-model/labels.csv)" -gt 1900
+          file food-model/food_v1.tflite
+          head -c 12 food-model/food_v1.tflite | od -An -tx1
+          head -n 5 food-model/labels.csv
+          sha256sum food-model/*
+      - name: Carregar artefacto de modelo para integração Android
+        uses: actions/upload-artifact@v4
+        with:
+          name: SaudePratica-food-model-offline
+          path: food-model/
+          retention-days: 14
