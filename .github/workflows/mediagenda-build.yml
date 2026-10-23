@@ -316,6 +316,9 @@ jobs:
       - name: Heart icon and manual measurements in Activity & Health v1.9.53
         run: python3 MediAgenda/v71_overrides/apply_v71.py
 
+      - name: Add meal photo diary and optional AI nutritional estimates v1.9.54
+        run: python3 MediAgenda/v72_overrides/apply_v72.py
+
       - name: Flag missing artwork in intermediate APK
         shell: bash
         run: |
@@ -346,14 +349,14 @@ jobs:
 
       - name: Prepare APK
         run: |
-          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk SaudePratica-v1.9.53-unsigned.apk
-          ls -lh SaudePratica-v1.9.53-unsigned.apk
+          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk SaudePratica-v1.9.54-unsigned.apk
+          ls -lh SaudePratica-v1.9.54-unsigned.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.53-INTERMEDIATE-unsigned
-          path: SaudePratica-v1.9.53-unsigned.apk
+          name: SaudePratica-v1.9.54-INTERMEDIATE-unsigned
+          path: SaudePratica-v1.9.54-unsigned.apk
           if-no-files-found: error
           retention-days: 30
 
@@ -370,16 +373,16 @@ jobs:
             --ks-key-alias "$SIGNING_ALIAS" \
             --ks-pass env:SIGNING_PASSWORD \
             --key-pass env:SIGNING_PASSWORD \
-            --out SaudePratica-v1.9.53-SIGNED.apk \
-            SaudePratica-v1.9.53-unsigned.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose SaudePratica-v1.9.53-SIGNED.apk
+            --out SaudePratica-v1.9.54-SIGNED.apk \
+            SaudePratica-v1.9.54-unsigned.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose SaudePratica-v1.9.54-SIGNED.apk
 
       - name: Upload signed APK
         if: ${{ env.HAS_SIGNING_KEY == 'true' && env.HAS_GRAPHICS == 'true' }}
         uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.53-SIGNED
-          path: SaudePratica-v1.9.53-SIGNED.apk
+          name: SaudePratica-v1.9.54-SIGNED
+          path: SaudePratica-v1.9.54-SIGNED.apk
           if-no-files-found: error
           retention-days: 30
 
