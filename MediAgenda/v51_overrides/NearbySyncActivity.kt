@@ -4,8 +4,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.view.Gravity
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -18,7 +16,6 @@ import com.google.android.gms.nearby.connection.AdvertisingOptions
 import com.google.android.gms.nearby.connection.ConnectionInfo
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback
 import com.google.android.gms.nearby.connection.ConnectionResolution
-import com.google.android.gms.nearby.connection.ConnectionsClient
 import com.google.android.gms.nearby.connection.DiscoveredEndpointInfo
 import com.google.android.gms.nearby.connection.DiscoveryOptions
 import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback
@@ -28,217 +25,179 @@ import com.google.android.gms.nearby.connection.PayloadTransferUpdate
 import com.google.android.gms.nearby.connection.Strategy
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.File
+import java.util.UUID
 import java.util.concurrent.Executors
 
-/** Deliberately foreground-only: medical and identity data cannot be exchanged
- * without explicit approval on both phones and matching authentication digits.
- */
-class NearbySyncActivity:AppCompatActivity(){
-    private val service="com.mediagenda.app.stable.saudepratica.sync.v1"
-    private val strategy=Strategy.P2P_POINT_TO_POINT
-    private lateinit var connections:ConnectionsClient
-    private lateinit var feedback:TextView
-    private lateinit var discovered:LinearLayout
+class NearbySyncActivity:AppCompatActivity() {
+    private val service="com.mediagenda.app.stable.nearby.family.v1"
+    private val client by lazy{Nearby.getConnectionsClient(this)}
+    private val vault by lazy{NearbySyncStore(this)}
     private val worker=Executors.newSingleThreadExecutor()
-    private val incoming=mutableMapOf<Long,Payload>()
-    private val outgoing=mutableMapOf<Long,File>()
-    private var connected:String?=null
-    private var busy=false
-    private var mode=""
-    private val devices=linkedMapOf<String,String>()
-    private val permissionRequest=registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()) { result->
-        if(result.values.all{it} && requiredPermissions().all {
+    private val pending=mutableMapOf<Long,Payload>()
+    private lateinit var status:TextView
+    private var peer:String?=null
+    private var connecting=false
+    private var onGranted:(()->Unit)?=null
+
+    private val permissions=registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()){result->
+        if(result.values.all{it} && required().all{
                 ContextCompat.checkSelfPermission(this,it)==PackageManager.PERMISSION_GRANTED
-            })begin()
-        else show("As permissões de Bluetooth/Wi-Fi são necessárias para procurar telemóveis próximos.")
-    }
-    private fun dp(n:Int)=(n*resources.displayMetrics.density+0.5f).toInt()
-    private fun txt(text:String,size:Float=16f):TextView=TextView(this).apply{
-        this.text=text;textSize=size;setPadding(dp(8),dp(8),dp(8),dp(8))
-    }
-    private fun button(text:String,action:()->Unit)=Button(this).apply{
-        this.text=text;isAllCaps=false;setOnClickListener{action()}
+            })onGranted?.invoke()
+        else update("Permissões recusadas. Abre Definições e autoriza Dispositivos próximos.")
+        onGranted=null
     }
     override fun onCreate(savedInstanceState:Bundle?){
         super.onCreate(savedInstanceState)
-        title="Sincronização local"
-        connections=Nearby.getConnectionsClient(this)
-        val root=LinearLayout(this).apply{
-            orientation=LinearLayout.VERTICAL;setPadding(dp(20),dp(25),dp(20),dp(20))
+        val panel=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL
+            setPadding(24,32,24,32)
         }
-        root.addView(txt("🔄 Sincronização familiar",23f))
-        root.addView(txt("Entre dois telemóveis com SaúdePrática. Usa Bluetooth e Wi-Fi, " +
-            "sem Internet ou backups manuais. Ambos têm de abrir este ecrã."))
-        root.addView(txt("Partilha autorizada: perfis, dados de identificação, medicação, " +
-            "tomas, consultas, análises, documentos e fotografias. As divergências " +
-            "são guardadas sem substituir os registos existentes.",14f))
-        root.addView(button("1 · Tornar este telemóvel visível") { consent("host") })
-        root.addView(button("2 · Procurar telemóvel próximo") { consent("search") })
-        root.addView(button("Parar / Desligar") { stop();show("Ligação terminada.") })
-        feedback=txt("Escolhe uma das opções. Confirma o mesmo código nos dois equipamentos.",15f)
-        root.addView(feedback)
-        root.addView(txt("Telemóveis encontrados:",17f))
-        discovered=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL}
-        root.addView(discovered)
-        root.addView(txt("A sincronização decorre apenas com este ecrã aberto. " +
-            "Eliminar um registo num telemóvel não o elimina no outro. " +
-            "Conflitos ficam arquivados para revisão.",13f))
-        setContentView(ScrollView(this).apply{addView(root)})
+        fun label(s:String,size:Float)=TextView(this).apply{
+            text=s;textSize=size;setPadding(8,12,8,12)
+        }
+        panel.addView(label("🔄 Sincronização familiar",25f))
+        panel.addView(label("No primeiro telemóvel escolhe PARTILHAR e no segundo PROCURAR. Verifica o mesmo código em ambos e confirma.",15f))
+        panel.addView(label("Dados: medicação, tomas, consultas, análises, documentos, embalagens e identificação. A fusão não elimina registos.",14f))
+        fun addButton(name:String,fn:()->Unit){
+            panel.addView(Button(this).apply{text=name;setOnClickListener{fn()}})
+        }
+        addButton("📡 PARTILHAR"){request{advertise()}}
+        addButton("🔎 PROCURAR"){request{discover()}}
+        addButton("✕ DESLIGAR"){disconnect();update("Ligação terminada.")}
+        status=label("Pronto para emparelhar.",17f)
+        panel.addView(status)
+        setContentView(ScrollView(this).apply{addView(panel)})
     }
-    private fun show(message:String){runOnUiThread{feedback.text=message}}
-    private fun requiredPermissions():Array<String> = when {
-        Build.VERSION.SDK_INT>=33->arrayOf(
+    private fun update(s:String){runOnUiThread{if(::status.isInitialized)status.text=s}}
+    private fun required():Array<String> = when {
+        Build.VERSION.SDK_INT>=33 -> arrayOf(
             Manifest.permission.BLUETOOTH_SCAN,
-            Manifest.permission.BLUETOOTH_ADVERTISE,
             Manifest.permission.BLUETOOTH_CONNECT,
-            Manifest.permission.NEARBY_WIFI_DEVICES)
-        Build.VERSION.SDK_INT>=31->arrayOf(
-            Manifest.permission.BLUETOOTH_SCAN,
             Manifest.permission.BLUETOOTH_ADVERTISE,
-            Manifest.permission.BLUETOOTH_CONNECT)
-        Build.VERSION.SDK_INT>=29->arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-        else->arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION)
+            Manifest.permission.NEARBY_WIFI_DEVICES)
+        Build.VERSION.SDK_INT>=31 -> arrayOf(
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_CONNECT,
+            Manifest.permission.BLUETOOTH_ADVERTISE,
+            Manifest.permission.ACCESS_FINE_LOCATION)
+        else -> arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
     }
-    private fun consent(newMode:String){
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Autorizar sincronização familiar?")
-            .setMessage("Serão enviados e recebidos dados de TODOS os perfis, " +
-                "incluindo Cartão de Cidadão, fotografias e documentos de saúde. " +
-                "Só deves ligar a um telemóvel de confiança. Nos dois telemóveis " +
-                "terás de comparar e confirmar o mesmo código de segurança. " +
-                "Não substituímos registos em conflito.")
-            .setPositiveButton("Autorizo") { _,_->
-                mode=newMode
-                val permissions=requiredPermissions().filter{
-                    ContextCompat.checkSelfPermission(this,it)!=PackageManager.PERMISSION_GRANTED
-                }
-                if(permissions.isEmpty())begin()else permissionRequest.launch(permissions.toTypedArray())
-            }.setNegativeButton("Cancelar",null).show()
-    }
-    private fun begin(){
-        stop()
-        busy=false
-        if(mode=="host"){
-            show("A anunciar este telemóvel. No outro escolhe 'Procurar'.")
-            connections.startAdvertising("SaúdePrática · "+Build.MODEL,service,connectionLifecycle,
-                AdvertisingOptions.Builder().setStrategy(strategy).build())
-                .addOnFailureListener{show("Erro ao anunciar: "+it.localizedMessage+
-                    ". Verifica se Bluetooth e Wi-Fi estão ligados.")}
-        }else{
-            show("A procurar telemóveis SaúdePrática próximos…")
-            connections.startDiscovery(service,discovery,
-                DiscoveryOptions.Builder().setStrategy(strategy).build())
-                .addOnFailureListener{show("Erro na procura: "+it.localizedMessage+
-                    ". Verifica se Bluetooth e Wi-Fi estão ligados.")}
+    private fun request(f:()->Unit){
+        val missing=required().filter{
+            ContextCompat.checkSelfPermission(this,it)!=PackageManager.PERMISSION_GRANTED
+        }
+        if(missing.isEmpty())f()else{
+            onGranted=f
+            permissions.launch(missing.toTypedArray())
         }
     }
-    private val discovery=object:EndpointDiscoveryCallback(){
-        override fun onEndpointFound(endpointId:String,info:DiscoveredEndpointInfo){
-            if(connected!=null)return
-            devices[endpointId]=info.endpointName
-            runOnUiThread{
-                discovered.removeAllViews()
-                devices.toMap().forEach{(id,label)->
-                    discovered.addView(button("Ligar a $label"){
-                        show("A pedir ligação a $label…")
-                        connections.requestConnection("SaúdePrática · "+Build.MODEL,id,connectionLifecycle)
-                            .addOnFailureListener{show("Falhou a ligação: "+it.localizedMessage)}
-                    })
-                }
-            }
-        }
-        override fun onEndpointLost(endpointId:String){
-            devices.remove(endpointId)
-            runOnUiThread{discovered.removeAllViews()}
-        }
+    private fun disconnect(){
+        client.stopDiscovery()
+        client.stopAdvertising()
+        client.stopAllEndpoints()
+        peer=null;connecting=false
     }
-    private val connectionLifecycle=object:ConnectionLifecycleCallback(){
+    private val connected=object:ConnectionLifecycleCallback(){
         override fun onConnectionInitiated(id:String,info:ConnectionInfo){
             runOnUiThread{
                 MaterialAlertDialogBuilder(this@NearbySyncActivity)
-                    .setTitle("Confirmar ligação segura")
-                    .setMessage("Telemóvel: "+info.endpointName+"\n\n"+
-                        "Código: "+info.authenticationDigits+"\n\n"+
-                        "COMPARA os códigos nos dois telemóveis. " +
-                        "Só aceita se forem IGUAIS e reconheceres o equipamento.")
+                    .setTitle("Emparelhar com "+info.endpointName)
+                    .setMessage("Confirma que o código nos dois telemóveis é igual:\n\n"+
+                        info.authenticationDigits)
                     .setCancelable(false)
-                    .setPositiveButton("Os códigos coincidem") { _,_->
-                        connections.acceptConnection(id,payloads)
-                            .addOnFailureListener{show("Falha na confirmação: "+it.localizedMessage)}
+                    .setPositiveButton("✓ Códigos iguais"){_,_->
+                        client.acceptConnection(id,received)
                     }
-                    .setNegativeButton("Recusar") { _,_->connections.rejectConnection(id) }
-                    .show()
+                    .setNegativeButton("Recusar"){_,_->
+                        client.rejectConnection(id);connecting=false
+                    }.show()
             }
         }
-        override fun onConnectionResult(id:String,result:ConnectionResolution){
-            if(result.status.isSuccess){
-                connected=id
-                connections.stopAdvertising();connections.stopDiscovery()
-                show("Ligado com código confirmado. A preparar envio de dados…")
+        override fun onConnectionResult(id:String,res:ConnectionResolution){
+            if(res.status.isSuccess){
+                peer=id
+                client.stopAdvertising();client.stopDiscovery()
+                update("Ligação segura. A transferir os dados...")
                 worker.execute{
                     try{
-                        val zip=NearbySyncStore(applicationContext).export()
-                        runOnUiThread{
-                            val payload=Payload.fromFile(zip)
-                            outgoing[payload.id]=zip
-                            connections.sendPayload(id,payload).addOnFailureListener{
-                                outgoing.remove(payload.id)?.delete()
-                                show("Falha ao enviar: "+it.localizedMessage)
-                            }
+                        val data=vault.export()
+                        val payload=Payload.fromFile(data)
+                        client.sendPayload(id,payload).addOnFailureListener{
+                            update("Erro no envio: "+it.localizedMessage)
                         }
-                    }catch(t:Exception){show("Erro na preparação: "+t.message)}
-                }
-            } else show("Ligação recusada ou indisponível.")
-        }
-        override fun onDisconnected(id:String){
-            connected=null
-            show("Ligação terminada. Volta a ligar para sincronizar novamente.")
-        }
-    }
-    private val payloads=object:PayloadCallback(){
-        override fun onPayloadReceived(endpointId:String,payload:Payload){
-            if(endpointId!=connected)return
-            if(payload.type==Payload.Type.FILE){incoming[payload.id]=payload}
-        }
-        override fun onPayloadTransferUpdate(endpointId:String,update:PayloadTransferUpdate){
-            if(endpointId!=connected)return
-            val status=update.status
-            if(status==PayloadTransferUpdate.Status.SUCCESS){
-                outgoing.remove(update.payloadId)?.let{
-                    it.delete();show("Dados enviados. A aguardar os dados do outro telemóvel…")
-                }
-                val file=incoming.remove(update.payloadId)?.asFile()?.asJavaFile()
-                if(file!=null){
-                    show("Dados recebidos. A validar e fundir com os registos existentes…")
-                    worker.execute{
-                        try{
-                            val result=NearbySyncStore(applicationContext).receive(file)
-                            show("✅ Sincronização concluída! " +
-                                "Novos registos: ${result.added}. " +
-                                "Ficheiros recebidos: ${result.files}. " +
-                                "Perfis: ${result.profiles}. " +
-                                "Conflitos preservados: ${result.conflicts}. " +
-                                "Os dados já estão disponíveis na aplicação.")
-                        }catch(t:Exception){show("Não foi possível importar: "+t.message)}
-                        finally{file.delete()}
+                    }catch(e:Exception){
+                        update("Erro ao preparar os dados: "+e.localizedMessage)
                     }
                 }
-            }else if(status==PayloadTransferUpdate.Status.FAILURE||
-                status==PayloadTransferUpdate.Status.CANCELED){
-                outgoing.remove(update.payloadId)?.delete()
-                incoming.remove(update.payloadId)
-                show("Transferência interrompida; os dados existentes não foram substituídos.")
+            }else{
+                connecting=false
+                update("Ligação não estabelecida: "+res.status.statusCode)
+            }
+        }
+        override fun onDisconnected(id:String){
+            peer=null;connecting=false;update("Ligação encerrada.")
+        }
+    }
+    private val found=object:EndpointDiscoveryCallback(){
+        override fun onEndpointFound(id:String,info:DiscoveredEndpointInfo){
+            if(connecting||peer!=null)return
+            connecting=true
+            update("Encontrado: "+info.endpointName)
+            client.requestConnection(android.os.Build.MODEL,id,connected)
+                .addOnFailureListener{
+                    connecting=false;update("Ligação falhou: "+it.localizedMessage)
+                }
+        }
+        override fun onEndpointLost(id:String){}
+    }
+    private fun advertise(){
+        disconnect();update("À espera do outro telemóvel...")
+        client.startAdvertising(Build.MODEL,service,connected,
+            AdvertisingOptions.Builder().setStrategy(Strategy.P2P_POINT_TO_POINT).build())
+            .addOnFailureListener{update("Falha na partilha: "+it.localizedMessage)}
+    }
+    private fun discover(){
+        disconnect();update("A procurar telemóveis próximos...")
+        client.startDiscovery(service,found,
+            DiscoveryOptions.Builder().setStrategy(Strategy.P2P_POINT_TO_POINT).build())
+            .addOnFailureListener{update("Falha na pesquisa: "+it.localizedMessage)}
+    }
+    private val received=object:PayloadCallback(){
+        override fun onPayloadReceived(id:String,p:Payload){
+            if(id==peer && p.type==Payload.Type.FILE) synchronized(pending){
+                pending[p.id]=p
+            }
+        }
+        override fun onPayloadTransferUpdate(id:String,u:PayloadTransferUpdate){
+            if(id!=peer)return
+            if(u.status==PayloadTransferUpdate.Status.SUCCESS){
+                val p=synchronized(pending){pending.remove(u.payloadId)}?:return
+                worker.execute{
+                    val local=File(cacheDir,UUID.randomUUID().toString()+".zip")
+                    try{
+                        val uri=p.asFile()?.asUri()?:error("Ficheiro inválido")
+                        contentResolver.openInputStream(uri)?.use{input->
+                            local.outputStream().use{out->input.copyTo(out)}
+                        }?:error("Ficheiro indisponível")
+                        val result=vault.merge(local)
+                        update("✓ Novos registos: "+result.newRecords+
+                            "; ficheiros: "+result.newFiles+
+                            "; conflitos protegidos: "+result.conflicts)
+                    }catch(e:Exception){
+                        update("Erro na sincronização: "+e.localizedMessage)
+                    }finally{local.delete()}
+                }
+            }else if(u.status==PayloadTransferUpdate.Status.FAILURE){
+                update("Transferência interrompida. Dados locais preservados.")
+            }else if(u.status==PayloadTransferUpdate.Status.IN_PROGRESS &&
+                u.totalBytes>0){
+                update("Transferência: "+(u.bytesTransferred*100/u.totalBytes)+"%")
             }
         }
     }
-    private fun stop(){
-        connections.stopAdvertising();connections.stopDiscovery();connections.stopAllEndpoints()
-        connected=null
-        devices.clear()
-    }
     override fun onDestroy(){
-        stop()
+        disconnect()
         worker.shutdown()
         super.onDestroy()
     }
