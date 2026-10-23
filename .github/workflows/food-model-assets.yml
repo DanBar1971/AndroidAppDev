@@ -25,6 +25,35 @@ jobs:
           find food-model -maxdepth 1 -type f -printf '%p %s bytes\n'
           head -n 5 food-model/labels.csv
           sha256sum food-model/*
+      - name: Preparar Python 3.11 para testar TFLite
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Testar execução real do classificador offline
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -q 'tflite-runtime==2.14.0' numpy
+          python - <<'PY'
+          import tarfile,numpy as np
+          from tflite_runtime.interpreter import Interpreter
+          with tarfile.open('food-model/food_v1.zip') as archive:
+              data=archive.extractfile('1.tflite').read()
+          with open('/tmp/food_v1.tflite','wb') as f: f.write(data)
+          model=Interpreter(model_path='/tmp/food_v1.tflite',num_threads=2)
+          model.allocate_tensors()
+          inp=model.get_input_details()[0];out=model.get_output_details()[0]
+          print('MODEL INPUT',inp['shape'],inp['dtype'])
+          print('MODEL OUTPUT',out['shape'],out['dtype'])
+          assert int(np.prod(inp['shape']))>=3*100*100
+          assert out['shape'][-1]==2024
+          fake=np.zeros(inp['shape'],dtype=inp['dtype'])
+          model.set_tensor(inp['index'],fake)
+          model.invoke()
+          result=model.get_tensor(out['index'])
+          assert np.all(np.isfinite(result))
+          print('OFFLINE INFERENCE PASSED top=',np.argsort(result.flatten())[-5:])
+          PY
       - name: Carregar artefacto de modelo para integração Android
         uses: actions/upload-artifact@v4
         with:
