@@ -33,7 +33,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m pip install -q 'tflite-runtime==2.14.0' numpy
+          python -m pip install -q 'tflite-runtime==2.14.0' 'numpy==1.26.4'
           python - <<'PY'
           import tarfile,numpy as np
           from tflite_runtime.interpreter import Interpreter
