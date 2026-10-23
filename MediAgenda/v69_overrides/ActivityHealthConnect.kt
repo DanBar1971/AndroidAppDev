@@ -268,7 +268,7 @@ class ActivityHealthConnect : AppCompatActivity() {
         if (allowed(HealthPermissions.READ_ACTIVE_CALORIES_BURNED)) {
             loadMetric(ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL, from, until) { value, problem ->
                 if (current == requestGeneration) caloriesView.text = if (problem != null) "🔥  Energia ativa: sem acesso" else
-                    "🔥  Energia ativa: ${value?.let { String.format(Locale("pt", "PT"), "%.0f kcal", it.inKilocalories) } ?: "sem registos"}"
+                    "🔥  Energia ativa: ${value?.let { String.format(Locale("pt", "PT"), "%.0f kcal", it.inCalories) } ?: "sem registos"}"
             }
         } else caloriesView.text = "🔥  Energia ativa: sem permissão"
         if (allowed(HealthPermissions.READ_SLEEP)) {
