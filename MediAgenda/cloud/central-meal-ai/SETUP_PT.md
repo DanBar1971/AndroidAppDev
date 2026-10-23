@@ -11,7 +11,7 @@ Este ZIP contém um Cloudflare Worker com limites de segurança incorporados (m�
 **É impossível ativar uma API central só com uma chave se não houver um serviço alojado.** Os utilizadores não têm de fazer estes passos; apenas o responsável. A configuração da IA tem só **um segredo necessário: `OPENAI_API_KEY`**. A primeira publicação do servidor e a indicação do respetivo URL público são dois passos técnicos adicionais, feitos uma única vez.
 
 1. Cria/inicia sessão numa conta Cloudflare: https://dash.cloudflare.com/ . Ativa Workers (pode começar no plano Free).
-2. Num computador com Node.js, extrai este ZIP, abre uma consola na pasta `central-service` e executa `npm install`, depois `npx wrangler login` (abre navegador) e `npm run deploy`.
+2. Num computador com Node.js, extrai este ZIP e faz duplo clique em `central-service/ATIVAR_SERVICO.bat` (a opção recomendada). O instalador verifica o `wrangler.jsonc`, instala ferramentas e, se ainda não houver autenticação, apresenta um código de acesso da Cloudflare. Abre https://dash.cloudflare.com/oauth2/device, introduz o código que surge na janela e confirma. Mantém o BAT aberto até à confirmação. Depois, o próprio BAT publica o serviço e pede a chave API. Como alternativa manual: `npm install`, `npx wrangler login --device --browser=false`, `npm run deploy` e `npm run secret`.
 3. Na mesma pasta, executa `npm run secret` e cola a tua chave API da OpenAI quando o Wrangler a pedir. Esta chave **só existe no Worker, nunca na APK**.
 4. O Wrangler apresenta um URL do género `https://saudepratica-refeicoes.<subdominio>.workers.dev`. Confirma em `<URL>/health` se indica `ready:true`.
 5. Abre o ficheiro **`MediAgenda/cloud/meal-ai-config.json`** no GitHub `DanBar1971/AndroidAppDev`, altera `enabled` de `false` para `true`, e introduz `endpoint` como o URL completo `https://saudepratica-refeicoes.<subdominio>.workers.dev/analyze`. Faz commit. **Não coloques a chave API neste ficheiro!**
@@ -30,3 +30,10 @@ Se quiseres desligar a análise para todos, altera `enabled` para `false` no JSO
 ## Verificação antes de distribuir
 
 `npm test` verifica o contador de pedidos. Faz um teste com um prato real, revê os resultados e confirma que a aplicação mostra uma mensagem amigável se o serviço estiver desligado.
+
+## Resolução de erros: 23/10/2026
+
+- **`CommaExpected` no ficheiro `wrangler.jsonc`**: a primeira versão do pacote tinha um `}` em falta na linha das `migrations`. Este ZIP está corrigido e o BAT valida o JSON antes da autenticação. Usa este ZIP em vez do anterior.
+- **URL da autenticação abre e fecha / browser não consegue chegar a localhost**: o BAT corrigido utiliza o método *device*, que não depende de `localhost`. Abre https://dash.cloudflare.com/oauth2/device e introduz o código apresentado na janela; não feches o BAT enquanto aguardas. Os códigos expiram rapidamente; executa de novo para receber um novo.
+- **Já tens sessão iniciada?** O BAT verifica com `wrangler whoami` e salta a autenticação se estiver tudo válido.
+- **Nunca publiques a tua chave da OpenAI aqui no chat.** Coloca-a apenas na janela do Wrangler quando este executar `wrangler secret put OPENAI_API_KEY`.
