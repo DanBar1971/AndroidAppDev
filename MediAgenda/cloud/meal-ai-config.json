@@ -1,0 +1,5 @@
+{
+  "enabled": false,
+  "endpoint": "",
+  "note": "Configuração pública do serviço central SaúdePrática; NÃO colocar segredos aqui."
+}
