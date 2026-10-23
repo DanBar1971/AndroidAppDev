@@ -48,9 +48,16 @@ new='''        // This editor has dozens of fields. Limit ONLY the scrollable ar
                 }
             }
             .show()
-        dialog.window?.setSoftInputMode(
-            android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE or
-            android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+        dialog.window?.apply {
+            setSoftInputMode(
+                android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE or
+                android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+            // Force a bounded total dialog window on Xiaomi/MIUI. AppCompat
+            // may replace the custom ScrollView LayoutParams, so the window
+            // height itself must also be capped to keep all 3 actions visible.
+            setLayout((resources.displayMetrics.widthPixels*0.92f).toInt(),
+                (resources.displayMetrics.heightPixels*0.78f).toInt())
+        }
 '''
 one(main,old,new,'bounded profile edit dialog with permanent actions')
 # Neutral click handler already checks the actual selected profile and then
