@@ -104,12 +104,12 @@ patch(p,'''    private fun showWater() {
         val amount = store.todayMl()
         val goal = store.optionalTargetMl
         val remaining = (goal-amount).coerceAtLeast(0)
-        val status=when {
+        val goalStatus=when {
             goal<=0 -> "Sem objetivo diário obrigatório."
             remaining==0 -> "🎉 Objetivo diário atingido! ($goal ml)"
             else -> "Objetivo: $goal ml · Faltam $remaining ml"
         }
-        card(content, "Hoje: $amount ml",status,
+        card(content, "Hoje: $amount ml",goalStatus,
             "🥛 Registar ${store.glassMl} ml") {
             store.recordGlass()
             WaterGoalNotifier.congratulateIfCompleted(this,profileId)
