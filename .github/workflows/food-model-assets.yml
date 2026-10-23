@@ -15,12 +15,14 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p food-model
-          curl -fL --retry 3 --connect-timeout 20 --max-time 180             'https://storage.googleapis.com/tfhub-lite-models/google/lite-model/aiy/vision/classifier/food_V1/1.tflite'             -o food-model/food_v1.tflite
+          curl -fL --retry 3 --connect-timeout 20 --max-time 180             'https://www.kaggle.com/api/v1/models/google/aiy/tfLite/vision-classifier-food-v1/1/download'             -o food-model/food_v1.download
           curl -fL --retry 3 --connect-timeout 20 --max-time 60             'https://www.gstatic.com/aihub/tfhub/labelmaps/aiy_food_V1_labelmap.csv'             -o food-model/labels.csv
-          test "$(stat -c%s food-model/food_v1.tflite)" -gt 1000000
+          file food-model/food_v1.download
+          ls -lh food-model
+          test "$(stat -c%s food-model/food_v1.download)" -gt 1000000
+          if unzip -t food-model/food_v1.download >/dev/null 2>&1; then unzip -l food-model/food_v1.download | head -40; mv food-model/food_v1.download food-model/food_v1.zip; else mv food-model/food_v1.download food-model/food_v1.tflite; fi
           test "$(wc -l < food-model/labels.csv)" -gt 1900
-          file food-model/food_v1.tflite
-          head -c 12 food-model/food_v1.tflite | od -An -tx1
+          find food-model -maxdepth 1 -type f -printf '%p %s bytes\n'
           head -n 5 food-model/labels.csv
           sha256sum food-model/*
       - name: Carregar artefacto de modelo para integração Android
