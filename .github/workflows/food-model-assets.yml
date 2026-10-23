@@ -37,7 +37,7 @@ jobs:
           python - <<'PY'
           import tarfile,numpy as np
           from tflite_runtime.interpreter import Interpreter
-          with tarfile.open('food-model/food_v1.zip') as archive:
+          with tarfile.open('food-model/food_v1.tflite') as archive:
               data=archive.extractfile('1.tflite').read()
           with open('/tmp/food_v1.tflite','wb') as f: f.write(data)
           model=Interpreter(model_path='/tmp/food_v1.tflite',num_threads=2)
