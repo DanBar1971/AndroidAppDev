@@ -304,15 +304,11 @@ jobs:
       - name: Water taken notification action and target celebration v1.9.48
         run: python3 MediAgenda/v67_overrides/apply_v67.py
 
-      - name: Report artwork readiness
+      - name: Enforce original artwork before generating APK
         shell: bash
         run: |
-          if python3 MediAgenda/tools/verify_graphics.py; then
-            echo "HAS_GRAPHICS=true" >> "$GITHUB_ENV"
-          else
-            echo "HAS_GRAPHICS=false" >> "$GITHUB_ENV"
-            echo "::warning title=Artwork not packaged::Unsigned APK is an intermediate build only. Original artwork must be embedded before signing and installation."
-          fi
+          python3 MediAgenda/tools/verify_graphics.py
+          echo "HAS_GRAPHICS=true" >> "$GITHUB_ENV"
 
       - name: Upload reconstructed source for review
         uses: actions/upload-artifact@v4
