@@ -356,6 +356,9 @@ jobs:
       - name: Select healthcare facilities by District and Municipality v1.9.62
         run: python3 MediAgenda/v80_overrides/apply_v80.py
 
+      - name: Correct sync identity and add missed dose badges v1.9.63
+        run: python3 MediAgenda/v81_overrides/apply_v81.py
+
 
       - name: Flag missing artwork in intermediate APK
         shell: bash
@@ -387,14 +390,14 @@ jobs:
 
       - name: Prepare APK
         run: |
-          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk SaudePratica-v1.9.62-unsigned.apk
-          ls -lh SaudePratica-v1.9.62-unsigned.apk
+          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk SaudePratica-v1.9.63-unsigned.apk
+          ls -lh SaudePratica-v1.9.63-unsigned.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.62-INTERMEDIATE-unsigned
-          path: SaudePratica-v1.9.62-unsigned.apk
+          name: SaudePratica-v1.9.63-INTERMEDIATE-unsigned
+          path: SaudePratica-v1.9.63-unsigned.apk
           if-no-files-found: error
           retention-days: 30
 
@@ -411,16 +414,16 @@ jobs:
             --ks-key-alias "$SIGNING_ALIAS" \
             --ks-pass env:SIGNING_PASSWORD \
             --key-pass env:SIGNING_PASSWORD \
-            --out SaudePratica-v1.9.62-SIGNED.apk \
-            SaudePratica-v1.9.62-unsigned.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose SaudePratica-v1.9.62-SIGNED.apk
+            --out SaudePratica-v1.9.63-SIGNED.apk \
+            SaudePratica-v1.9.63-unsigned.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose SaudePratica-v1.9.63-SIGNED.apk
 
       - name: Upload signed APK
         if: ${{ env.HAS_SIGNING_KEY == 'true' && env.HAS_GRAPHICS == 'true' }}
         uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.62-SIGNED
-          path: SaudePratica-v1.9.62-SIGNED.apk
+          name: SaudePratica-v1.9.63-SIGNED
+          path: SaudePratica-v1.9.63-SIGNED.apk
           if-no-files-found: error
           retention-days: 30
 
