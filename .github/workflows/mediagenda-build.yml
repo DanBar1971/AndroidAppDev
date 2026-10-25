@@ -383,6 +383,14 @@ jobs:
             build-src/MediAgenda_Android_v1/app/src/main/AndroidManifest.xml
           retention-days: 3
 
+      - name: Upload complete v1.9.64 Android source project
+        uses: actions/upload-artifact@v4
+        with:
+          name: SaudePratica-v1.9.64-FULL-SOURCE
+          path: build-src/MediAgenda_Android_v1/
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Build APK
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleRelease
