@@ -100,6 +100,14 @@ change(badge,'''            else PersonalHealthStore(context,selected).overdueIn
                         PersonalHealthStore(context,it.id).overdueIntakes().size
                     } else own
             }''','caregiver badge aggregate')
+change(main,'''        val lateTomas=runCatching { PersonalHealthStore(this,activeProfileId)
+            .overdueIntakes().size }.getOrDefault(0)''',
+'''        val lateTomas=runCatching {
+            val caregiver=getSharedPreferences("saudepratica_caregiver_v1",MODE_PRIVATE)
+                .getString("caregiver_id",null)==activeProfileId
+            (if(caregiver)profiles.all() else profiles.all().filter{it.id==activeProfileId})
+                .sumOf{PersonalHealthStore(this,it.id).overdueIntakes().size}
+        }.getOrDefault(0)''','caregiver dashboard total')
 build=root/'app/build.gradle.kts'
 change(build,'versionCode = 74','versionCode = 75','versionCode')
 change(build,'versionName = "1.9.64"','versionName = "1.9.65"','versionName')
