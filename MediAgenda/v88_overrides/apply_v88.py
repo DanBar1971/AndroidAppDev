@@ -78,6 +78,51 @@ change(health,'''                shell.addView(column);addCard(shell)
             }
         }
         val format=SimpleDateFormat("dd/MM/yyyy · HH:mm",Locale("pt","PT"))''',"caregiver remove overdue")
+# A caregiver can also delete confirmed intakes of family profiles.
+change(health,'''        val format=SimpleDateFormat("dd/MM/yyyy · HH:mm",Locale("pt","PT"))
+        val overdue=store.overdueIntakes()''','''        val caregiverId=getSharedPreferences("saudepratica_caregiver_v1",MODE_PRIVATE)
+            .getString("caregiver_id",null)
+        if(caregiverId==profileId){
+            val familyConfirmed=ProfileStore(this).all().filter{it.id!=profileId}
+                .flatMap{person->runCatching{
+                    PersonalHealthStore(this,person.id).list("intakes")
+                        .map{person to it}
+                }.getOrDefault(emptyList())}
+                .sortedByDescending{it.second.timestamp}
+            body.addView(label("✅ Tomas confirmadas da família · "+
+                familyConfirmed.size,19f,true).apply{
+                setPadding(dp(4),dp(18),0,dp(8))
+            })
+            familyConfirmed.forEach{(person,item)->
+                val shell=card()
+                val column=LinearLayout(this).apply{
+                    orientation=LinearLayout.VERTICAL
+                    setPadding(dp(15),dp(14),dp(15),dp(14))
+                }
+                val whenText=SimpleDateFormat("dd/MM/yyyy · HH:mm",
+                    Locale("pt","PT")).format(Date(item.timestamp))
+                column.addView(label(person.name+" · "+item.title,16f,true))
+                column.addView(label("Confirmada: "+whenText,12f,color=muted))
+                column.addView(button("🗑 Apagar registo de "+person.name){
+                    MaterialAlertDialogBuilder(this)
+                        .setTitle("Apagar toma confirmada?")
+                        .setMessage("Perfil: "+person.name+"\\nMedicamento: "+
+                            item.title+"\\nEste registo será removido do histórico. "+
+                            "Não altera a prescrição.")
+                        .setPositiveButton("Apagar"){_,_->
+                            runCatching{
+                                PersonalHealthStore(this,person.id).remove(item)
+                                com.mediagenda.app.notifications.IntakeBadgeManager.refresh(
+                                    this,profileId)
+                                refresh()
+                            }.onFailure{alert(it.message?:"Não foi possível apagar")}
+                        }.setNegativeButton("Cancelar",null).show()
+                })
+                shell.addView(column);addCard(shell)
+            }
+        }
+        val format=SimpleDateFormat("dd/MM/yyyy · HH:mm",Locale("pt","PT"))
+        val overdue=store.overdueIntakes()''',"caregiver confirmed deletion")
 # Tombstones for deleted pending intake reminders must synchronize like deleted
 # confirmations; otherwise the reminder can return after family sync.
 store=base/"data/PersonalHealthStore.kt"
