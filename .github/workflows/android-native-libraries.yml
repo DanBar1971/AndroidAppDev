@@ -1,0 +1,32 @@
+name: Android native packaging libraries
+
+on:
+  push:
+    paths:
+      - ".github/workflows/android-native-libraries.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Android packaging runtime
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libc++1 libc++abi1 libunwind-19 || sudo apt-get install -y -qq libc++1 libc++abi1
+          mkdir -p runtime
+          for lib in libc++.so.1 libc++abi.so.1 libunwind.so.1; do
+            candidate="$(find /usr/lib /lib -name "$lib" -type f -o -name "$lib" -type l | head -n 1)"
+            if [ -n "$candidate" ]; then cp -L "$candidate" "runtime/$lib"; fi
+          done
+          ls -lah runtime
+          test -f runtime/libc++.so.1
+      - name: Upload native libs
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-zipalign-native-runtime
+          path: runtime
+          retention-days: 3
