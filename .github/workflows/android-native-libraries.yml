@@ -34,3 +34,5 @@ jobs:
           name: android-zipalign-native-runtime
           path: runtime
           retention-days: 3
+
+# CI-only verification marker
