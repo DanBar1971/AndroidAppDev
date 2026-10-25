@@ -59,7 +59,7 @@ jobs:
       - name: Check output version
         run: |
           "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk | head -n 3
-          grep -F 'versionName = "1.9.69"' build-src/MediAgenda_Android_v1/app/build.gradle.kts
+          grep -F 'versionName = "1.9.70"' build-src/MediAgenda_Android_v1/app/build.gradle.kts
       - name: Sign release APK with existing key when available
         env:
           KEY_B64: ${{ secrets.SAUDEPRATICA_KEYSTORE_B64 }}
