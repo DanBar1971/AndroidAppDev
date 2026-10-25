@@ -6,12 +6,14 @@ on:
       - ".github/workflows/mediagenda-v1969.yml"
       - "MediAgenda/v87_overrides/**"
       - "MediAgenda/v88_overrides/**"
+      - "MediAgenda/v89_overrides/**"
   pull_request:
     branches: [master]
     paths:
       - ".github/workflows/mediagenda-v1969.yml"
       - "MediAgenda/v87_overrides/**"
       - "MediAgenda/v88_overrides/**"
+      - "MediAgenda/v89_overrides/**"
   workflow_dispatch:
 permissions:
   contents: read
