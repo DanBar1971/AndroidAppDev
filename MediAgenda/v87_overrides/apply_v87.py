@@ -281,3 +281,4 @@ p=root/"app/build.gradle.kts"
 change(p,"versionCode = 78","versionCode = 79","code")
 change(p,'versionName = "1.9.68"','versionName = "1.9.69"',"name")
 print("SaúdePrática 1.9.69 applied")
+exec(compile(Path("MediAgenda/v88_overrides/apply_v88.py").read_text(encoding="utf-8"),"MediAgenda/v88_overrides/apply_v88.py","exec"))
