@@ -52,6 +52,7 @@ jobs:
                   print("Applying:",name,flush=True)
                   subprocess.run(["bash","-eo","pipefail","-c",script],check=True)
           subprocess.run(["python3","MediAgenda/v87_overrides/apply_v87.py"],check=True)
+          subprocess.run(["python3","MediAgenda/v89_overrides/apply_v89.py"],check=True)
           PY
       - name: Compile Android 1.9.69
         working-directory: build-src/MediAgenda_Android_v1
