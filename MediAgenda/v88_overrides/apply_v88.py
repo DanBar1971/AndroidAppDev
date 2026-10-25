@@ -80,9 +80,7 @@ change(health,'''                shell.addView(column);addCard(shell)
         val format=SimpleDateFormat("dd/MM/yyyy · HH:mm",Locale("pt","PT"))''',"caregiver remove overdue")
 # A caregiver can also delete confirmed intakes of family profiles.
 change(health,'''        val format=SimpleDateFormat("dd/MM/yyyy · HH:mm",Locale("pt","PT"))
-        val overdue=store.overdueIntakes()''','''        val caregiverId=getSharedPreferences("saudepratica_caregiver_v1",MODE_PRIVATE)
-            .getString("caregiver_id",null)
-        if(caregiverId==profileId){
+        val overdue=store.overdueIntakes()''','''        if(caregiverId==profileId){
             val familyConfirmed=ProfileStore(this).all().filter{it.id!=profileId}
                 .flatMap{person->runCatching{
                     PersonalHealthStore(this,person.id).list("intakes")
