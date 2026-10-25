@@ -1,1 +1,2 @@
 SaúdePrática v1.9.64 — test compilation on GitHub Actions. This marker contains no patient information.
+Second verification also packages the complete source project and checks the renewed medication alert channel.\n
