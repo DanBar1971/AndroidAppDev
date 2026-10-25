@@ -67,6 +67,17 @@ change(alarm,"    private fun silence() {\n        runCatching { player?.stop() 
         speaker = null
         runCatching { player?.stop() }""","stop voice with TOMEI/ADIAR")
 
+change(alarm,
+"""                repeatSpeech = repeat
+                repeatHandler.post(repeat)""",
+"""                // Prefer speech to the old ringtone; audio fallback is used
+                // only when Portuguese text-to-speech is unavailable.
+                runCatching { player?.stop(); player?.release() }
+                player = null
+                repeatSpeech = repeat
+                repeatHandler.post(repeat)""",
+"voice replaces ringtone once ready")
+
 badge=base/"notifications/IntakeBadgeManager.kt"
 change(badge,'private const val CHANNEL="saudepratica_intake_counter_v1"',
        'private const val CHANNEL="saudepratica_intake_counter_quiet_v2"',
