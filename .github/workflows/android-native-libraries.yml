@@ -4,6 +4,10 @@ on:
   push:
     paths:
       - ".github/workflows/android-native-libraries.yml"
+  pull_request:
+    branches: [master]
+    paths:
+      - ".github/workflows/android-native-libraries.yml"
   workflow_dispatch:
 
 permissions:
