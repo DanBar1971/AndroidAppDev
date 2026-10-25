@@ -19,19 +19,11 @@ change(main,'        box.addView(dosePatternButton)','        box.addView(chosen
 change(main,'        box.addView(reminder.container);box.addView(doseTimes.container)','        box.addView(reminder.container);box.addView(doseTimes.container)\n        box.addView(medicationNotes.container)','notes display')
 change(main,'                m.doseTimes=doseTimes.edit.text.toString().trim()','                m.doseTimes=doseTimes.edit.text.toString().trim()\n                m.notes=medicationNotes.edit.text.toString().trim()','notes save')
 receiver=base/'notifications/NotificationReceiver.kt'
-# Previous releases have renamed the notification channel. Discover the current
-# declaration safely instead of requiring an outdated literal channel id.
-import re
-source=receiver.read_text(encoding='utf-8')
-match=re.search(r'(?m)^(\\s*)val channelId\\s*=\\s*"([^"]+)"',source)
-if match:
-    original=match.group(2)
-    replacement=(match.group(1)+'val channelId = if(!medicationId.isNullOrBlank())\\n'+
-      match.group(1)+'    "saudepratica_medication_alarm_v3" else "'+original+'"')
-    receiver.write_text(source[:match.start()]+replacement+source[match.end():],encoding='utf-8')
-else:
-    # Do not break working alarms when the current code uses a dynamic channel.
-    print('v82 warning: dynamic notification channel; keeping the existing alarm setup')
+# Android notification channels are immutable after first creation.
+# A fresh medication channel renews alarm sound/vibration without touching
+# the quiet appointments channel or the existing TOMEI action.
+change(receiver,'isMedication->"saudepratica_medication_alarm_v2"',
+       'isMedication->"saudepratica_medication_alarm_v3"','renew medication alarm channel')
 
 build=root/'app/build.gradle.kts'
 change(build,'versionCode = 73','versionCode = 74','versionCode')
