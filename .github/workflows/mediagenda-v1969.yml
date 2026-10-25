@@ -1,0 +1,70 @@
+name: SaudePratica v1.9.69 Android Build
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/mediagenda-v1969.yml"
+      - "MediAgenda/v87_overrides/**"
+  pull_request:
+    branches: [master]
+    paths:
+      - ".github/workflows/mediagenda-v1969.yml"
+      - "MediAgenda/v87_overrides/**"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+      - name: Android SDK
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -n 1)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+      - name: Reconstruct previous versions and apply v1.9.69
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 - <<'PY'
+          import subprocess,yaml
+          workflow=yaml.safe_load(open(".github/workflows/mediagenda-build.yml"))
+          steps=workflow["jobs"]["build"]["steps"]
+          started=False
+          for step in steps:
+              name=step.get("name","")
+              if name=="Reconstruct MediAgenda base":started=True
+              if not started:continue
+              if name=="Flag missing artwork in intermediate APK":break
+              script=step.get("run")
+              if script:
+                  print("Applying:",name,flush=True)
+                  subprocess.run(["bash","-eo","pipefail","-c",script],check=True)
+          subprocess.run(["python3","MediAgenda/v87_overrides/apply_v87.py"],check=True)
+          PY
+      - name: Compile Android 1.9.69
+        working-directory: build-src/MediAgenda_Android_v1
+        run: gradle --no-daemon assembleRelease
+      - name: Check output version
+        run: |
+          "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk | head -n 3
+          grep -F 'versionName = "1.9.69"' build-src/MediAgenda_Android_v1/app/build.gradle.kts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SaudePratica-v1.9.69-FULL-SOURCE
+          path: build-src/MediAgenda_Android_v1/
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SaudePratica-v1.9.69-UNSIGNED
+          path: build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk
+          retention-days: 7
