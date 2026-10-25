@@ -371,6 +371,9 @@ jobs:
       - name: Unify alarm channels and medication form v1.9.67
         run: python3 MediAgenda/v85_overrides/apply_v85.py
 
+      - name: Portuguese spoken alarms and quiet overdue counters v1.9.68
+        run: python3 MediAgenda/v86_overrides/apply_v86.py
+
 
       - name: Flag missing artwork in intermediate APK
         shell: bash
@@ -395,7 +398,7 @@ jobs:
       - name: Upload complete v1.9.67 Android source project
         uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.67-FULL-SOURCE
+          name: SaudePratica-v1.9.68-FULL-SOURCE
           path: build-src/MediAgenda_Android_v1/
           if-no-files-found: error
           retention-days: 7
@@ -410,14 +413,14 @@ jobs:
 
       - name: Prepare APK
         run: |
-          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk SaudePratica-v1.9.67-unsigned.apk
-          ls -lh SaudePratica-v1.9.67-unsigned.apk
+          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk SaudePratica-v1.9.68-unsigned.apk
+          ls -lh SaudePratica-v1.9.68-unsigned.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.67-INTERMEDIATE-unsigned
-          path: SaudePratica-v1.9.67-unsigned.apk
+          name: SaudePratica-v1.9.68-INTERMEDIATE-unsigned
+          path: SaudePratica-v1.9.68-unsigned.apk
           if-no-files-found: error
           retention-days: 30
 
@@ -435,7 +438,7 @@ jobs:
             --ks-pass env:SIGNING_PASSWORD \
             --key-pass env:SIGNING_PASSWORD \
             --out SaudePratica-v1.9.67-SIGNED.apk \
-            SaudePratica-v1.9.67-unsigned.apk
+            SaudePratica-v1.9.68-unsigned.apk
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose SaudePratica-v1.9.67-SIGNED.apk
 
       - name: Upload signed APK
