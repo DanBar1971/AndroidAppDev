@@ -84,6 +84,12 @@ change(health,'        val format=SimpleDateFormat("dd/MM/yyyy · HH:mm",Locale(
         val format=SimpleDateFormat("dd/MM/yyyy · HH:mm",Locale("pt","PT"))
         val overdue=store.overdueIntakes()''','caregiver overdue and WhatsApp')
 badge=base/'notifications/IntakeBadgeManager.kt'
+change(badge,'        if(profileId!=null && selected!=profileId)return',
+'''        if(profileId!=null && selected!=profileId &&
+            prefs(context).getString("current_profile",null)!=
+                context.getSharedPreferences("saudepratica_caregiver_v1",
+                    Context.MODE_PRIVATE).getString("caregiver_id",null))return''',
+    'refresh caregiver badge when family dose changes')
 change(badge,'''            else PersonalHealthStore(context,selected).overdueIntakes().size''',
 '''            else {
                 val own=PersonalHealthStore(context,selected).overdueIntakes().size
