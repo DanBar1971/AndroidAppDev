@@ -1,1 +1,1 @@
-SaúdePrática 1.9.69: 60-second configurable voice/tone alarm, safe demo and ignored-dose status. GitHub CI builds APK and full source.
+SaúdePrática 1.9.70: full-screen alarm and caregiver reminder deletion. CI builds APK and full source via v87→v88 patches.
