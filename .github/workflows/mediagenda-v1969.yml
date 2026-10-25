@@ -1,4 +1,4 @@
-name: SaudePratica v1.9.69 Android Build
+name: SaudePratica v1.9.70 Android Build
 on:
   push:
     branches: [master]
@@ -32,7 +32,7 @@ jobs:
           if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -n 1)"; fi
           yes | "$SDKMANAGER" --licenses >/dev/null || true
           "$SDKMANAGER" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
-      - name: Reconstruct previous versions and apply v1.9.69
+      - name: Reconstruct previous versions and apply v1.9.70
         run: |
           python3 -m pip install --quiet pyyaml
           python3 - <<'PY'
@@ -60,11 +60,11 @@ jobs:
           grep -F 'versionName = "1.9.69"' build-src/MediAgenda_Android_v1/app/build.gradle.kts
       - uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.69-FULL-SOURCE
+          name: SaudePratica-v1.9.70-FULL-SOURCE
           path: build-src/MediAgenda_Android_v1/
           retention-days: 7
       - uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.69-UNSIGNED
+          name: SaudePratica-v1.9.70-UNSIGNED
           path: build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk
           retention-days: 7
