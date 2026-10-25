@@ -362,6 +362,9 @@ jobs:
       - name: Medication type, notes and stronger alarm v1.9.64
         run: python3 MediAgenda/v82_overrides/apply_v82.py
 
+      - name: Caregiver profile and family intake reminders v1.9.65
+        run: python3 MediAgenda/v83_overrides/apply_v83.py
+
 
       - name: Flag missing artwork in intermediate APK
         shell: bash
@@ -383,10 +386,10 @@ jobs:
             build-src/MediAgenda_Android_v1/app/src/main/AndroidManifest.xml
           retention-days: 3
 
-      - name: Upload complete v1.9.64 Android source project
+      - name: Upload complete v1.9.65 Android source project
         uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.64-FULL-SOURCE
+          name: SaudePratica-v1.9.65-FULL-SOURCE
           path: build-src/MediAgenda_Android_v1/
           if-no-files-found: error
           retention-days: 7
@@ -401,14 +404,14 @@ jobs:
 
       - name: Prepare APK
         run: |
-          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk SaudePratica-v1.9.64-unsigned.apk
-          ls -lh SaudePratica-v1.9.64-unsigned.apk
+          cp build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk SaudePratica-v1.9.65-unsigned.apk
+          ls -lh SaudePratica-v1.9.65-unsigned.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.64-INTERMEDIATE-unsigned
-          path: SaudePratica-v1.9.64-unsigned.apk
+          name: SaudePratica-v1.9.65-INTERMEDIATE-unsigned
+          path: SaudePratica-v1.9.65-unsigned.apk
           if-no-files-found: error
           retention-days: 30
 
@@ -425,16 +428,16 @@ jobs:
             --ks-key-alias "$SIGNING_ALIAS" \
             --ks-pass env:SIGNING_PASSWORD \
             --key-pass env:SIGNING_PASSWORD \
-            --out SaudePratica-v1.9.64-SIGNED.apk \
-            SaudePratica-v1.9.64-unsigned.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose SaudePratica-v1.9.64-SIGNED.apk
+            --out SaudePratica-v1.9.65-SIGNED.apk \
+            SaudePratica-v1.9.65-unsigned.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose SaudePratica-v1.9.65-SIGNED.apk
 
       - name: Upload signed APK
         if: ${{ env.HAS_SIGNING_KEY == 'true' && env.HAS_GRAPHICS == 'true' }}
         uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.64-SIGNED
-          path: SaudePratica-v1.9.64-SIGNED.apk
+          name: SaudePratica-v1.9.65-SIGNED
+          path: SaudePratica-v1.9.65-SIGNED.apk
           if-no-files-found: error
           retention-days: 30
 
