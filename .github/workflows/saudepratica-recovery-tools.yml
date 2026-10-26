@@ -1,0 +1,40 @@
+name: SaúdePrática Previous Release Recovery Tools
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/saudepratica-recovery-tools.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  retrieve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Obtain last published verified APK
+        run: |
+          set -euo pipefail
+          curl -fL --retry 5 --retry-all-errors --connect-timeout 20             "https://github.com/$GITHUB_REPOSITORY/releases/download/v1.9.78/SaudePratica.apk"             -o SaudePratica-v1.9.78-base.apk
+          test -s SaudePratica-v1.9.78-base.apk
+      - name: Upload previous APK for local signing verification
+        uses: actions/upload-artifact@v4
+        with:
+          name: SaudePratica-v1.9.78-BASE
+          path: SaudePratica-v1.9.78-base.apk
+          retention-days: 1
+      - name: Obtain Android SDK signing verifier (without signing credentials)
+        run: |
+          mkdir -p android-signing-tools
+          cp "$ANDROID_HOME/build-tools/35.0.0/apksigner" android-signing-tools/
+          cp "$ANDROID_HOME/build-tools/35.0.0/lib/apksigner.jar" android-signing-tools/
+          tar -czf android-signing-tools.tar.gz android-signing-tools
+      - name: Upload APK signing/verification tooling
+        uses: actions/upload-artifact@v4
+        with:
+          name: SaudePratica-recovery-apksigner-35
+          path: android-signing-tools.tar.gz
+          retention-days: 1
