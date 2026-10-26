@@ -84,7 +84,8 @@ change("notifications/NotificationReceiver.kt",
 "fallback group no photo")
 change("notifications/NotificationReceiver.kt",
 '''                    if(med!=null){
-                        PersonalHealthStore(context,profileId)''',
+                        PersonalHealthStore(context,profileId)
+                            .noteReminder(med.id,med.medication.ifBlank{"Medicação"},scheduledDoseAt)''',
 '''                    if(groupIds.size>1){
                         val byId=DataRepository(context,profileId)
                             .loadMedications().associateBy{it.id}
