@@ -105,10 +105,8 @@ edit("notifications/MedicationAlarmService.kt",
                 medicationId,scheduledAt))){''',
 "service does not restart justified dose")
 edit("notifications/MedicationAlarmService.kt",
-'''            MedicationAlarmCoordinator.wasConfirmed(this,profile,medId,
-                intent.getLongExtra("scheduled_at",0L))){finish();return}''',
-'''            MedicationAlarmCoordinator.wasHandled(this,profile,medId,
-                intent.getLongExtra("scheduled_at",0L))){finish();return}''',
+'''MedicationAlarmCoordinator.wasConfirmed(this,profile,medId,''',
+'''MedicationAlarmCoordinator.wasHandled(this,profile,medId,''',
 "activity does not start justified dose")
 
 edit("HealthRecordsActivity.kt",
