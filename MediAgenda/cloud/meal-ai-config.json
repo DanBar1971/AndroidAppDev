@@ -1,5 +1,6 @@
 {
   "enabled": false,
   "endpoint": "",
-  "note": "Configuração pública do serviço central SaúdePrática; NÃO colocar segredos aqui."
+  "note": "Configuração pública opcional: ativa só quando existir gateway Gemini seguro. Nunca guardar GEMINI_API_KEY no repositório nem na APK.",
+  "provider": "gemini"
 }
