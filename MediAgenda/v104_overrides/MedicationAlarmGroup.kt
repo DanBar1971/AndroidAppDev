@@ -20,6 +20,11 @@ internal object MedicationAlarmGroup {
             prefs(c).edit().putLong("next|"+profile+"|"+med,at).commit()
         }
     }
+    fun members(c:Context,profile:String,at:Long):List<String> =
+        prefs(c).getString("members|"+profile+"|"+at,null)
+            ?.split('|')?.filter{it.isNotBlank()}.orEmpty()
+    fun leader(c:Context,profile:String,at:Long):String =
+        prefs(c).getString("leader|"+profile+"|"+at,"").orEmpty()
     fun due(c:Context,profile:String,at:Long,current:String):List<String> {
         if(ProfileStore(c).all().none{it.id==profile}||at<=0L)return listOf(current)
         val snapshot=prefs(c).getString("members|"+profile+"|"+at,null)
@@ -30,12 +35,13 @@ internal object MedicationAlarmGroup {
         val existing=DataRepository(c,profile).loadMedications().map{it.id}.toSet()
         return (scheduled+current).distinct().filter{it in existing}.sorted()
     }
-    fun claim(c:Context,profile:String,at:Long,ids:List<String>):Boolean=synchronized(lock){
+    fun claim(c:Context,profile:String,at:Long,ids:List<String>,leader:String):Boolean=synchronized(lock){
         val key="shown|"+profile+"|"+at
         val p=prefs(c)
         if(p.getBoolean(key,false))false
         else p.edit().putBoolean(key,true)
-            .putString("members|"+profile+"|"+at,ids.joinToString("|")).commit()
+            .putString("members|"+profile+"|"+at,ids.joinToString("|"))
+            .putString("leader|"+profile+"|"+at,leader).commit()
     }
     fun pending(c:Context,profile:String,at:Long,ids:List<String>){
         val data=DataRepository(c,profile).loadMedications().associateBy{it.id}
