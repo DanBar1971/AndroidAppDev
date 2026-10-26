@@ -19,6 +19,7 @@ on:
       - "MediAgenda/v99_overrides/**"
       - "MediAgenda/v100_overrides/**"
       - "MediAgenda/v101_overrides/**"
+      - "MediAgenda/v102_overrides/**"
   pull_request:
     branches: [master]
     paths:
@@ -38,6 +39,7 @@ on:
       - "MediAgenda/v99_overrides/**"
       - "MediAgenda/v100_overrides/**"
       - "MediAgenda/v101_overrides/**"
+      - "MediAgenda/v102_overrides/**"
   workflow_dispatch:
 permissions:
   contents: write
@@ -91,6 +93,7 @@ jobs:
           subprocess.run(["python3","MediAgenda/v99_overrides/apply_v99.py"],check=True)
           subprocess.run(["python3","MediAgenda/v100_overrides/apply_v100.py"],check=True)
           subprocess.run(["python3","MediAgenda/v101_overrides/apply_v101.py"],check=True)
+          subprocess.run(["python3","MediAgenda/v102_overrides/apply_v102.py"],check=True)
           PY
       - name: Require original app artwork (background, icon and splash)
         run: python3 MediAgenda/tools/verify_graphics.py
