@@ -1,4 +1,4 @@
-name: SaudePratica v1.9.75 Android Build
+name: SaudePratica v1.9.76 Android Build
 on:
   push:
     branches: [master]
@@ -11,6 +11,7 @@ on:
       - "MediAgenda/v91_overrides/**"
       - "MediAgenda/v92_overrides/**"
       - "MediAgenda/v93_overrides/**"
+      - "MediAgenda/v94_overrides/**"
   pull_request:
     branches: [master]
     paths:
@@ -22,6 +23,7 @@ on:
       - "MediAgenda/v91_overrides/**"
       - "MediAgenda/v92_overrides/**"
       - "MediAgenda/v93_overrides/**"
+      - "MediAgenda/v94_overrides/**"
   workflow_dispatch:
 permissions:
   contents: read
@@ -44,7 +46,7 @@ jobs:
           if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -n 1)"; fi
           yes | "$SDKMANAGER" --licenses >/dev/null || true
           "$SDKMANAGER" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
-      - name: Reconstruct previous versions and apply v1.9.75
+      - name: Reconstruct previous versions and apply v1.9.76
         run: |
           python3 -m pip install --quiet pyyaml
           python3 - <<'PY'
@@ -67,14 +69,15 @@ jobs:
           subprocess.run(["python3","MediAgenda/v91_overrides/apply_v91.py"],check=True)
           subprocess.run(["python3","MediAgenda/v92_overrides/apply_v92.py"],check=True)
           subprocess.run(["python3","MediAgenda/v93_overrides/apply_v93.py"],check=True)
+          subprocess.run(["python3","MediAgenda/v94_overrides/apply_v94.py"],check=True)
           PY
-      - name: Compile Android 1.9.75
+      - name: Compile Android 1.9.76
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleRelease
       - name: Check output version
         run: |
           "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk | head -n 3
-          grep -F 'versionName = "1.9.75"' build-src/MediAgenda_Android_v1/app/build.gradle.kts
+          grep -F 'versionName = "1.9.76"' build-src/MediAgenda_Android_v1/app/build.gradle.kts
       - name: Sign release APK with existing key when available
         env:
           KEY_B64: ${{ secrets.SAUDEPRATICA_KEYSTORE_B64 }}
@@ -94,22 +97,22 @@ jobs:
             --ks "$RUNNER_TEMP/saudepratica.jks" \
             --ks-key-alias "$KEY_ALIAS" \
             --ks-pass env:KEY_PASS --key-pass env:KEY_PASS \
-            --out SaudePratica-v1.9.75-SIGNED.apk \
+            --out SaudePratica-v1.9.76-SIGNED.apk \
             build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose SaudePratica-v1.9.75-SIGNED.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose SaudePratica-v1.9.76-SIGNED.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.75-SIGNED
-          path: SaudePratica-v1.9.75-SIGNED.apk
+          name: SaudePratica-v1.9.76-SIGNED
+          path: SaudePratica-v1.9.76-SIGNED.apk
           if-no-files-found: ignore
           retention-days: 7
       - uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.75-FULL-SOURCE
+          name: SaudePratica-v1.9.76-FULL-SOURCE
           path: build-src/MediAgenda_Android_v1/
           retention-days: 7
       - uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.75-UNSIGNED
+          name: SaudePratica-v1.9.76-UNSIGNED
           path: build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk
           retention-days: 7
