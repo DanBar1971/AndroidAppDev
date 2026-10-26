@@ -181,6 +181,19 @@ edit("HealthRecordsActivity.kt",
             }
         }''',
 "show reason history distinctly from taken")
+edit("notifications/MedicationAlarmService.kt",
+'''        if(MedicationAlarmCoordinator.wasConfirmed(context,profile,medId,whenOriginal)){
+            MedicationAlarmCoordinator.resolve(context,profile,medId,whenOriginal)
+            return
+        }''',
+'''        val allMembers=(intent.getStringArrayListExtra("group_med_ids").orEmpty()+
+            MedicationAlarmGroup.members(context,profile,whenOriginal)+medId).distinct()
+        if(allMembers.all{
+            MedicationAlarmCoordinator.wasHandled(context,profile,it,whenOriginal)
+        }){
+            MedicationAlarmCoordinator.resolve(context,profile,medId,whenOriginal)
+            return
+        }''',"group snooze checks all medicines, not just first")
 build=root/"app/build.gradle.kts"
 s=build.read_text(encoding="utf-8")
 assert s.count("versionCode = 95")==1 and s.count('versionName = "1.9.85"')==1
