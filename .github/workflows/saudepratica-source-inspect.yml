@@ -1,0 +1,47 @@
+name: SaudePratica source inspection for intake UI
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/saudepratica-source-inspect.yml'
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download existing v1.9.85 full source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/12664372564/zip" > /tmp/compiled-source.zip
+          mkdir -p /tmp/compiled
+          unzip -q /tmp/compiled-source.zip -d /tmp/compiled
+      - name: Examine alarm and Tomas flows
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path('/tmp/compiled')
+          for f in root.rglob('HealthRecordsActivity.kt'):
+            s=f.read_text()
+            print('FILE',f,'LINES',len(s.splitlines()))
+            for i,line in enumerate(s.splitlines()):
+              if any(x in line for x in ['private fun showIntakes(', 'private fun renderIntakes(', 'private fun showIntake', 'val pending=', 'val pending =', 'val overdue=', 'val checked=', 'pendingIntakes', 'pending_intakes', 'noteReminder', 'Por confirmar', 'Tomas por confirmar']):
+                print('\nMATCH',i+1,line)
+                for j in range(max(0,i-12),min(len(s.splitlines()),i+35)):
+                  print('%04d'%(j+1),s.splitlines()[j])
+          for f in root.rglob('PersonalHealthStore.kt'):
+            s=f.read_text()
+            print('\nSTORE',f,'LINES',len(s.splitlines()))
+            for token in ['fun noteReminder(', 'fun pendingIntakes(', 'fun confirmScheduledIntake(', 'fun overdueIntakes(']:
+              p=s.find(token)
+              if p>=0:print('\n',token,'\n',s[p:p+2700])
+          for f in root.rglob('MedicationAlarmService.kt'):
+            s=f.read_text()
+            print('\nALARM',f)
+            for token in ['val root = ScrollView(this)', 'val root=ScrollView(this)', 'class MedicationAlarmActionReceiver']:
+              p=s.find(token)
+              if p>=0:print(token,'\n',s[p:p+2400])
+          PY
