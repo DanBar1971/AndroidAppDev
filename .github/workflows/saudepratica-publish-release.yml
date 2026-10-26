@@ -41,7 +41,7 @@ jobs:
           if [ "$EVENT_NAME" = workflow_dispatch ]; then
             TAG="$INPUT_VERSION"
           else
-            MATCH="$(git diff-tree --no-commit-id --name-only -r HEAD | grep -E '^SaúdePrática/release-patches/v[0-9]+\.[0-9]+\.[0-9]+/manifest\.json$' | head -n1)"
+            MATCH="$(git -c core.quotepath=false diff-tree --no-commit-id --name-only -r HEAD | grep -E '^SaúdePrática/release-patches/v[0-9]+\.[0-9]+\.[0-9]+/manifest\.json$' | head -n1)"
             [ -n "$MATCH" ] || { echo "::error::No release manifest changed"; exit 1; }
             TAG="$(basename "$(dirname "$MATCH")")"
           fi
