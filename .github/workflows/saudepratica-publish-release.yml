@@ -97,7 +97,7 @@ jobs:
             echo "::error::Delta checksum mismatch"; exit 1;
           }
 
-          zstd --decompress --patch-from=base.apk delta.zst \
+          zstd --decompress --long=28 --patch-from=base.apk delta.zst \
             -o SaudePratica.apk
           echo "$APK_SHA  SaudePratica.apk" | sha256sum --check --status || {
             echo "::error::Signed APK checksum mismatch. Nothing has been published."; exit 1;
