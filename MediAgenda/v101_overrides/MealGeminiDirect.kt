@@ -133,7 +133,7 @@ As calorias são estimativas visuais, não medições clínicas.
             ?:error("Gemini não devolveu alimentos.")
         val text=buildString{
             for(i in 0 until parts.length())append(parts.optJSONObject(i)?.optString("text").orEmpty())
-        }.trim().removePrefix("~~~json").removePrefix("~~~").removeSuffix("~~~").trim()
+        }.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
         val parsed=runCatching{JSONObject(text)}.getOrElse{
             error("Resposta Gemini ilegível; tenta outra fotografia.")
         }
