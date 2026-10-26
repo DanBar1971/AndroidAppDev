@@ -1,0 +1,135 @@
+name: Publicar SaúdePrática APK assinado
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'SaúdePrática/release-patches/**/manifest.json'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Tag da versão preparada, por exemplo v1.9.77'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: saudepratica-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout validated release files
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+
+      - name: Resolve exact release manifest
+        id: meta
+        shell: bash
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = workflow_dispatch ]; then
+            TAG="$INPUT_VERSION"
+          else
+            MATCH="$(git diff-tree --no-commit-id --name-only -r HEAD | grep -E '^SaúdePrática/release-patches/v[0-9]+\.[0-9]+\.[0-9]+/manifest\.json$' | head -n1)"
+            [ -n "$MATCH" ] || { echo "::error::No release manifest changed"; exit 1; }
+            TAG="$(basename "$(dirname "$MATCH")")"
+          fi
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+            echo "::error::Unexpected version tag"; exit 1;
+          }
+          DIR="SaúdePrática/release-patches/$TAG"
+          [ -s "$DIR/manifest.json" ] || { echo "::error::Missing manifest"; exit 1; }
+          [ -s "$DIR/release-notes.md" ] || { echo "::error::Missing notes"; exit 1; }
+          jq -e --arg tag "$TAG" '
+            .tag==$tag and
+            .base_tag!=.tag and
+            .asset=="SaudePratica.apk" and
+            (.base_sha256 | test("^[a-f0-9]{64}$")) and
+            (.apk_sha256 | test("^[a-f0-9]{64}$")) and
+            (.delta_sha256 | test("^[a-f0-9]{64}$"))
+          ' "$DIR/manifest.json" >/dev/null
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "directory=$DIR" >> "$GITHUB_OUTPUT"
+
+      - name: Refuse replacement of an existing public release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::Release $TAG already exists. Refusing to overwrite a public APK."
+            exit 1
+          fi
+
+      - name: Reconstruct the already signed APK from verified public predecessor
+        shell: bash
+        env:
+          DIR: ${{ steps.meta.outputs.directory }}
+        run: |
+          set -euo pipefail
+          BASE_TAG="$(jq -r .base_tag "$DIR/manifest.json")"
+          BASE_SHA="$(jq -r .base_sha256 "$DIR/manifest.json")"
+          PATCH_SHA="$(jq -r .delta_sha256 "$DIR/manifest.json")"
+          APK_SHA="$(jq -r .apk_sha256 "$DIR/manifest.json")"
+
+          # The previous APK is public and signed. The delta contains no private key.
+          curl -fL --retry 5 --retry-all-errors --connect-timeout 20 \
+            "https://github.com/$GITHUB_REPOSITORY/releases/download/$BASE_TAG/SaudePratica.apk" \
+            -o base.apk
+          echo "$BASE_SHA  base.apk" | sha256sum --check --status || {
+            echo "::error::Base APK checksum mismatch"; exit 1;
+          }
+
+          test -f "$DIR/delta.part00.b64"
+          cat "$DIR"/delta.part*.b64 | base64 --decode > delta.zst
+          echo "$PATCH_SHA  delta.zst" | sha256sum --check --status || {
+            echo "::error::Delta checksum mismatch"; exit 1;
+          }
+
+          zstd --decompress --patch-from=base.apk delta.zst \
+            -o SaudePratica.apk
+          echo "$APK_SHA  SaudePratica.apk" | sha256sum --check --status || {
+            echo "::error::Signed APK checksum mismatch. Nothing has been published."; exit 1;
+          }
+
+          echo "Verified signed APK: $(du -h SaudePratica.apk | cut -f1)"
+          echo "SHA-256: $APK_SHA"
+
+      - name: Verify Android signatures
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -x "$ANDROID_HOME/build-tools/35.0.0/apksigner" ]; then
+            "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose SaudePratica.apk
+          else
+            echo "::error::Android SDK build-tools 35.0.0 not installed on runner"
+            exit 1
+          fi
+
+      - name: Publish GitHub Release and stable download asset
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.meta.outputs.tag }}
+          DIR: ${{ steps.meta.outputs.directory }}
+        run: |
+          set -euo pipefail
+          gh release create "$TAG" SaudePratica.apk \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "SaúdePrática $TAG — Atualização Android" \
+            --notes-file "$DIR/release-notes.md" \
+            --latest
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY"
+          echo "Download: https://github.com/$GITHUB_REPOSITORY/releases/latest/download/SaudePratica.apk"
