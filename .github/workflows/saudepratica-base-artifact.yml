@@ -1,0 +1,29 @@
+name: Copia temporaria APK assinada anterior
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/saudepratica-base-artifact.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  export-signed-base:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Descarregar APK publicada v1.9.82
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release download v1.9.82 --repo "$GITHUB_REPOSITORY" --pattern 'SaudePratica.apk' --dir .
+          echo 'c152e31e9bfe10391671cff8e2992041fb90f3a9010627d44c384c0a073a237f  SaudePratica.apk' | sha256sum --check
+      - name: Criar artefacto temporario para verificacao de assinatura
+        uses: actions/upload-artifact@v4
+        with:
+          name: SaudePratica-v1.9.82-BASE-SIGNED
+          path: SaudePratica.apk
+          compression-level: 0
+          retention-days: 1
