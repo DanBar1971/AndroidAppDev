@@ -83,9 +83,25 @@ jobs:
           subprocess.run(["python3","MediAgenda/v97_overrides/apply_v97.py"],check=True)
           subprocess.run(["python3","MediAgenda/v98_overrides/apply_v98.py"],check=True)
           PY
+      - name: Require original app artwork (background, icon and splash)
+        run: python3 MediAgenda/tools/verify_graphics.py
       - name: Compile Android 1.9.80
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleRelease
+      - name: Check branded graphics exist inside compiled APK
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from zipfile import ZipFile
+          apk="build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk"
+          with ZipFile(apk) as z:
+              branded=[(a.filename,a.file_size) for a in z.infolist()
+                       if a.filename.startswith("res/") and
+                          a.filename.lower().endswith(".png") and a.file_size>50000]
+          if len(branded)<3:
+              raise SystemExit("App artwork missing from APK; blocking this release: "+repr(branded))
+          print("Branded graphics packaged:",branded)
+          PY
       - name: Check output version
         run: |
           "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk | head -n 3
