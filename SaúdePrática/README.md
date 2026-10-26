@@ -43,4 +43,12 @@ Desde a versão **v1.9.77**, as Releases podem ser publicadas automaticamente pe
 - Faturas mensais, acompanhamento manual da ADSE e documentos PDF/fotografias em Documentos Digitais.
 - Requisitos completos em [Módulo Lares](./MODULO_LARES_APOIO_TERCEIRA_IDADE.md).
 
-**Release atual:** [v1.9.79](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.79), publicada e verificada com o asset `SaudePratica.apk` e certificado original. A versão nova deve ser sempre publicada automaticamente e confirmada em GitHub Releases.
+**Release atual:** [v1.9.80](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.80), publicada e verificada com o asset `SaudePratica.apk` e certificado original. A versão nova deve ser sempre publicada automaticamente e confirmada em GitHub Releases.
+
+## Novidades v1.9.80
+
+- Reordenar atalhos com **↑ Subir / ↓ Descer** na gestão dos links.
+- Ecrã inicial com descrições curtas nos cartões Lares e Atalhos Importantes.
+- Instituição/contactos do lar partilhados e residentes associados explicitamente (Camy, familiares); faturas e documentos mantidos separadamente por ID de perfil.
+- Restaurados o background, o ícone e a splash a partir das imagens do projeto; imagens obrigatórias no workflow.
+- [Detalhes e APK v1.9.80](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.80).
