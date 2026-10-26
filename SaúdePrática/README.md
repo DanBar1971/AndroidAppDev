@@ -43,7 +43,7 @@ Desde a versão **v1.9.77**, as Releases podem ser publicadas automaticamente pe
 - Faturas mensais, acompanhamento manual da ADSE e documentos PDF/fotografias em Documentos Digitais.
 - Requisitos completos em [Módulo Lares](./MODULO_LARES_APOIO_TERCEIRA_IDADE.md).
 
-**Release atual:** [v1.9.81](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.81) — Nutrição: refeições com vários alimentos, fotografias visíveis no histórico e correção de sugestões não fiáveis; APK original assinada, gráficos preservados.
+**Release atual:** [v1.9.82](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.82) — Nutrição: refeições com vários alimentos, fotografias visíveis no histórico e correção de sugestões não fiáveis; APK original assinada, gráficos preservados.
 
 ## Novidades v1.9.80
 
@@ -52,3 +52,11 @@ Desde a versão **v1.9.77**, as Releases podem ser publicadas automaticamente pe
 - Instituição/contactos do lar partilhados e residentes associados explicitamente (Camy, familiares); faturas e documentos mantidos separadamente por ID de perfil.
 - Restaurados o background, o ícone e a splash a partir das imagens do projeto; imagens obrigatórias no workflow.
 - [Detalhes e APK v1.9.80](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.80).
+
+## Nutrição e Gemini (v1.9.82)
+
+- Botão Gemini preparado para reconhecimento de múltiplos alimentos, com consentimento por fotografia; gramas e kcal editáveis individualmente.
+- Sem configuração externa para utilizadores; a análise online só funcionará **depois** da ativação do gateway pelo responsável, com uma chave Gemini gerida fora da APK.
+- O modo manual offline, histórico de fotografias por perfil e eliminação de refeições continuam operacionais.
+- Projeto/implementação: [v100](../MediAgenda/v100_overrides/apply_v100.py) e [serviço central Gemini](../MediAgenda/cloud/central-meal-ai/GEMINI_SETUP_PT.md).
+- Nunca afirmar que Gemini online está ativo enquanto `MediAgenda/cloud/meal-ai-config.json` apresentar `enabled:false`.
