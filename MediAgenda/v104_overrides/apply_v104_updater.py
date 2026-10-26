@@ -28,33 +28,6 @@ patch(main,'''    override fun onResume() {
 
 checker=base/"SaudePraticaUpdateChecker.kt"
 patch(checker,
-'''        val download:String="",
-        val details:String=""''',
-'''        val download:String="",
-        val details:String="",
-        val digest:String=""''',"download digest data")
-patch(checker,
-'''                                var link=""
-                                if(assets!=null){''',
-'''                                var link=""
-                                var checksum=""
-                                if(assets!=null){''',"sha response variable")
-patch(checker,
-'''                                            link=url
-                                            break''',
-'''                                            link=url
-                                            checksum=asset.optString("digest")
-                                            break''',"extract GitHub SHA-256")
-patch(checker,
-'''                                        Answer("update",tag,link)''',
-'''                                        Answer("update",tag,link,digest=checksum)''',"pass verified checksum")
-patch(checker,
-'''                    "\n\nQueres descarregá-la? A instalação será confirmada pelo Android. "+
-                    "Não desinstales a aplicação anterior, para manter os dados.")''',
-'''                    "\n\nDescarregar dentro da SaúdePrática e abrir o instalador do Android? "+
-                    "Será necessária a tua confirmação. Não desinstales a versão anterior.")''',
-"update UX explanation")
-patch(checker,
 '''                .setPositiveButton("Descarregar atualização"){_,_->
                     try{
                         activity.startActivity(Intent(Intent.ACTION_VIEW,
