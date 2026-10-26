@@ -22,17 +22,20 @@ internal object MedicationAlarmGroup {
     }
     fun due(c:Context,profile:String,at:Long,current:String):List<String> {
         if(ProfileStore(c).all().none{it.id==profile}||at<=0L)return listOf(current)
+        val snapshot=prefs(c).getString("members|"+profile+"|"+at,null)
+        if(!snapshot.isNullOrBlank())return snapshot.split('|').distinct()
         val scheduled=prefs(c).all.filter{(key,value)->
             key.startsWith("next|"+profile+"|") && value==at
         }.keys.map{it.removePrefix("next|"+profile+"|")}
         val existing=DataRepository(c,profile).loadMedications().map{it.id}.toSet()
         return (scheduled+current).distinct().filter{it in existing}.sorted()
     }
-    fun claim(c:Context,profile:String,at:Long):Boolean=synchronized(lock){
+    fun claim(c:Context,profile:String,at:Long,ids:List<String>):Boolean=synchronized(lock){
         val key="shown|"+profile+"|"+at
         val p=prefs(c)
         if(p.getBoolean(key,false))false
-        else p.edit().putBoolean(key,true).commit()
+        else p.edit().putBoolean(key,true)
+            .putString("members|"+profile+"|"+at,ids.joinToString("|")).commit()
     }
     fun pending(c:Context,profile:String,at:Long,ids:List<String>){
         val data=DataRepository(c,profile).loadMedications().associateBy{it.id}
