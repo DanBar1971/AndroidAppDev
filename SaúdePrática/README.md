@@ -53,6 +53,22 @@ Desde a versão **v1.9.77**, as Releases podem ser publicadas automaticamente pe
 - Restaurados o background, o ícone e a splash a partir das imagens do projeto; imagens obrigatórias no workflow.
 - [Detalhes e APK v1.9.80](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.80).
 
+## Em desenvolvimento: Gemini direto no telemóvel (v1.9.83)
+
+O código v1.9.83 acrescenta um modo opcional que funciona **sem Worker**:
+1. Na Nutrição, selecionar **Configurar / testar Gemini no telemóvel**.
+2. Colar uma única vez uma chave da Google AI Studio e premir **Guardar e testar**.
+3. Após confirmação, fotografar a refeição e premir **Analisar refeição com Gemini (online)**.
+4. Autorizar explicitamente a transferência daquela fotografia. Corrigir cada alimento, gramas e kcal antes de guardar.
+
+- A chave é cifrada com Android Keystore, guardada apenas no armazenamento `noBackupFilesDir`; não aparece no GitHub, APK, backups nem sincronização familiar.
+- Se não existir chave local, mantém-se o modo de serviço central opcional da v1.9.82, que só funciona com um gateway ativado.
+- O registo manual offline e as fotografias no histórico continuam disponíveis.
+- O resultado de calorias é uma estimativa visual, com confirmação humana obrigatória.
+- **Estado:** código enviado para o GitHub; a v1.9.83 não deve ser anunciada como Release instalável antes de confirmar compilação, assinatura e publicação no GitHub Releases.
+
+Documentação de implementação: [patch v101](../MediAgenda/v101_overrides/apply_v101.py) e [cliente Gemini](../MediAgenda/v101_overrides/MealGeminiDirect.kt).
+
 ## Nutrição e Gemini (v1.9.82)
 
 - Botão Gemini preparado para reconhecimento de múltiplos alimentos, com consentimento por fotografia; gramas e kcal editáveis individualmente.
