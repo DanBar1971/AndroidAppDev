@@ -28,3 +28,11 @@
 - Módulos e novidades devem preservar medicação, notificações, e os dados da v1.9.78; testar regressões.
 - O módulo Lares/ERPI, SAD e Centro de Dia é uma das funcionalidades atuais: `SaúdePrática/MODULO_LARES_APOIO_TERCEIRA_IDADE.md` e `MediAgenda/v97_overrides/` (v1.9.79).
 - Em qualquer comunicação de estado, distinguir claramente **código enviado / APK compilada / APK assinada / Release publicada**.
+
+## Proteção obrigatória de imagens e estabilidade (v1.9.80)
+- Não voltar a produzir APKs sem a arte original: `saude_background.png`, `saude_icon.png`, `saude_splash.png`.
+- Recursos já guardados no repositório em `MediAgenda/v98_overrides/branding/` (Base64 PNG) e restaurados durante `apply_v98.py`; são cópias otimizadas visualmente das imagens originais fornecidas pelo utilizador. Consultar o Projeto/Library para obter os PNGs originais de resolução plena caso necessário.
+- O workflow `.github/workflows/mediagenda-v1969.yml` bloqueia a publicação se `MediAgenda/tools/verify_graphics.py` falhar ou se a APK compilada não incluir pelo menos três imagens da marca reais.
+- Última Release confirmada: **v1.9.80**, ficheiro exato `SaudePratica.apk`, SHA256 `1f523d51ef8168dcc6c864e049f7914f6d0e1abb0e3c7a62437c2a30803cba9f`.
+- **Lares**: catálogo partilhado da instituição, residentes explicitamente associados, selecionar Camy ou outro familiar; cada fatura, nota, documento e valência pertence exclusivamente a um perfil ID.
+- **Atalhos**: ordem personalizada persistente com Subir/Descer.
