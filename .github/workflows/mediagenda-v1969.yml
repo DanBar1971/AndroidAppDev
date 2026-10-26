@@ -15,6 +15,7 @@ on:
       - "MediAgenda/v95_overrides/**"
       - "MediAgenda/v96_overrides/**"
       - "MediAgenda/v97_overrides/**"
+      - "MediAgenda/v98_overrides/**"
   pull_request:
     branches: [master]
     paths:
@@ -30,6 +31,7 @@ on:
       - "MediAgenda/v95_overrides/**"
       - "MediAgenda/v96_overrides/**"
       - "MediAgenda/v97_overrides/**"
+      - "MediAgenda/v98_overrides/**"
   workflow_dispatch:
 permissions:
   contents: write
