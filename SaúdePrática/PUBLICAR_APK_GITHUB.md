@@ -34,3 +34,15 @@ Se o repositório for privado, o destinatário precisa de acesso autorizado ao G
 - Manter o identificador Android e a assinatura para permitir instalar por cima sem perder dados.
 
 **Atenção:** alterar o nome do projeto/aplicação não obriga a alterar o package ID do Android. A pasta técnica `MediAgenda` mantém-se para o build.
+
+## Atualização automática na aplicação (desde 1.9.76)
+
+A aplicação consulta, no máximo uma vez de 12 em 12 horas, a API pública GitHub Releases `/repos/DanBar1971/AndroidAppDev/releases/latest` sem transmitir qualquer dado de saúde. Na área **Opções → Ajuda e informações → Verificar atualizações**, o utilizador pode iniciar a mesma consulta manualmente.
+
+- A Release deve ser pública, não estar marcada como pré-lançamento e usar a tag `v1.9.76` (ou versão posterior em formato `vMAJOR.MINOR.PATCH`).
+- O ficheiro APK assinado deve chamar-se **exatamente `SaudePratica.apk`**.
+- Se a versão publicada for mais recente do que a instalada, surge uma proposta de download com ação explícita. A aplicação abre o browser e o Android confirma a instalação.
+- Não instalar silenciosamente, não permitir downgrade, não solicitar credenciais ou dados médicos durante a verificação.
+- Enquanto não existir uma Release pública, a API devolve 404 e a app explica o motivo.
+
+**Publicação inicial manual:** [Criar Release](https://github.com/DanBar1971/AndroidAppDev/releases/new) com a APK assinada. O conector GitHub atual não expõe a criação de Releases com upload binário; o download fixo não funciona até esta etapa ser concluída.
