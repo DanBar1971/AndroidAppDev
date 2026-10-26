@@ -101,6 +101,7 @@ replace(care,
                 }else{
                     // Never silently associate the currently active health profile.
                     if(profileId !in selected)profileId=selected.firstOrNull().orEmpty()
+                    profileName=residentLabel(profileId)
                     facility.edit().putString("last_resident_id",profileId).apply()
                 }
                 render()
