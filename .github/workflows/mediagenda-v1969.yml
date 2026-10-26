@@ -81,6 +81,7 @@ jobs:
           subprocess.run(["python3","MediAgenda/v95_overrides/apply_v95.py"],check=True)
           subprocess.run(["python3","MediAgenda/v96_overrides/apply_v96.py"],check=True)
           subprocess.run(["python3","MediAgenda/v97_overrides/apply_v97.py"],check=True)
+          subprocess.run(["python3","MediAgenda/v98_overrides/apply_v98.py"],check=True)
           PY
       - name: Compile Android 1.9.79
         working-directory: build-src/MediAgenda_Android_v1
