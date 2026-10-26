@@ -1,4 +1,4 @@
-name: SaudePratica v1.9.86 Android Build
+name: SaudePratica v1.9.87 Android Build
 on:
   push:
     branches: [master]
@@ -23,6 +23,7 @@ on:
       - "MediAgenda/v103_overrides/**"
       - "MediAgenda/v104_overrides/**"
       - "MediAgenda/v105_overrides/**"
+      - "MediAgenda/v106_overrides/**"
   pull_request:
     branches: [master]
     paths:
@@ -46,6 +47,7 @@ on:
       - "MediAgenda/v103_overrides/**"
       - "MediAgenda/v104_overrides/**"
       - "MediAgenda/v105_overrides/**"
+      - "MediAgenda/v106_overrides/**"
   workflow_dispatch:
 permissions:
   contents: write
@@ -68,7 +70,7 @@ jobs:
           if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -n 1)"; fi
           yes | "$SDKMANAGER" --licenses >/dev/null || true
           "$SDKMANAGER" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
-      - name: Reconstruct previous versions and apply v1.9.86
+      - name: Reconstruct previous versions and apply v1.9.87
         run: |
           python3 -m pip install --quiet pyyaml
           python3 - <<'PY'
@@ -106,10 +108,11 @@ jobs:
           subprocess.run(["python3","MediAgenda/v104_overrides/apply_v104_updater.py"],check=True)
           subprocess.run(["python3","MediAgenda/v105_overrides/apply_v105.py"],check=True)
           subprocess.run(["python3","MediAgenda/v105_overrides/apply_v105_lockscreen.py"],check=True)
+          subprocess.run(["python3","MediAgenda/v106_overrides/apply_v106.py"],check=True)
           PY
       - name: Require original app artwork (background, icon and splash)
         run: python3 MediAgenda/tools/verify_graphics.py
-      - name: Compile Android 1.9.86
+      - name: Compile Android 1.9.87
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleRelease
       - name: Check branded graphics exist inside compiled APK
@@ -129,7 +132,7 @@ jobs:
       - name: Check output version
         run: |
           "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk | head -n 3
-          grep -F 'versionName = "1.9.86"' build-src/MediAgenda_Android_v1/app/build.gradle.kts
+          grep -F 'versionName = "1.9.87"' build-src/MediAgenda_Android_v1/app/build.gradle.kts
       - name: Sign release APK with existing key when available
         env:
           KEY_B64: ${{ secrets.SAUDEPRATICA_KEYSTORE_B64 }}
@@ -149,18 +152,18 @@ jobs:
             --ks "$RUNNER_TEMP/saudepratica.jks" \
             --ks-key-alias "$KEY_ALIAS" \
             --ks-pass env:KEY_PASS --key-pass env:KEY_PASS \
-            --out SaudePratica-v1.9.86-SIGNED.apk \
+            --out SaudePratica-v1.9.87-SIGNED.apk \
             build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose SaudePratica-v1.9.86-SIGNED.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose SaudePratica-v1.9.87-SIGNED.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.86-SIGNED
-          path: SaudePratica-v1.9.86-SIGNED.apk
+          name: SaudePratica-v1.9.87-SIGNED
+          path: SaudePratica-v1.9.87-SIGNED.apk
           if-no-files-found: ignore
           retention-days: 7
       - uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.86-FULL-SOURCE
+          name: SaudePratica-v1.9.87-FULL-SOURCE
           path: build-src/MediAgenda_Android_v1/
           retention-days: 7
       - name: Export Android signing tools (no certificates or passwords)
@@ -176,40 +179,40 @@ jobs:
           retention-days: 2
       - uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.86-UNSIGNED
+          name: SaudePratica-v1.9.87-UNSIGNED
           path: build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk
           retention-days: 7
 
-      - name: Verify original signing identity and publish v1.9.86 release
+      - name: Verify original signing identity and publish v1.9.87 release
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          if [ ! -s SaudePratica-v1.9.86-SIGNED.apk ]; then
+          if [ ! -s SaudePratica-v1.9.87-SIGNED.apk ]; then
             echo "::warning::Release NOT published: original Android signing key is unavailable."
             exit 0
           fi
           SDK_APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
           curl -fL --retry 4 --retry-all-errors --connect-timeout 20 \
-            "https://github.com/$GITHUB_REPOSITORY/releases/download/v1.9.85/SaudePratica.apk" \
+            "https://github.com/$GITHUB_REPOSITORY/releases/download/v1.9.86/SaudePratica.apk" \
             -o "$RUNNER_TEMP/stable-v1.9.79.apk"
           PREVIOUS="$("$SDK_APKSIGNER" verify --print-certs "$RUNNER_TEMP/stable-v1.9.79.apk" |
             grep 'Signer #1 certificate SHA-256 digest:' | head -1 | awk '{print $NF}')"
-          CANDIDATE="$("$SDK_APKSIGNER" verify --print-certs SaudePratica-v1.9.86-SIGNED.apk |
+          CANDIDATE="$("$SDK_APKSIGNER" verify --print-certs SaudePratica-v1.9.87-SIGNED.apk |
             grep 'Signer #1 certificate SHA-256 digest:' | head -1 | awk '{print $NF}')"
           if [ -z "$PREVIOUS" ] || [ "$PREVIOUS" != "$CANDIDATE" ]; then
             echo "::error::Certificate differs from installed app; refusing public update."
             exit 1
           fi
-          if gh release view v1.9.86 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+          if gh release view v1.9.87 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             echo "Release already exists; refusing to overwrite."
             exit 0
           fi
-          cp SaudePratica-v1.9.86-SIGNED.apk SaudePratica.apk
-          gh release create v1.9.86 SaudePratica.apk \
+          cp SaudePratica-v1.9.87-SIGNED.apk SaudePratica.apk
+          gh release create v1.9.87 SaudePratica.apk \
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title "SaúdePrática v1.9.86 — Alarme seguro e tomas adiadas" \
-            --notes "Alarme: corrigida a margem superior para não ficar sob a barra de estado do Android/HyperOS. ADIAR 10 MIN grava de imediato cada medicamento em Tomas do perfil correspondente, com hora do adiamento e possibilidade de confirmar a toma ou justificar uma dose não realizada. Uma justificação nunca conta como toma confirmada. Preservados os alarmes individuais com fotografia, os grupos e a atualização dentro da app." \
+            --title "SaúdePrática v1.9.87 — Correção da atualização dentro da App" \
+            --notes "Atualização direta: corrigido erro "Ocorreu um problema ao analisar o pacote" no Android/HyperOS, usando PackageInstaller.Session em vez de passar um URI privado ao leitor de APK. Mantidas verificação SHA-256, assinatura Android, confirmação do utilizador, dados, alarmes e fotos." \
             --latest
-          gh release view v1.9.86 --repo "$GITHUB_REPOSITORY"
+          gh release view v1.9.87 --repo "$GITHUB_REPOSITORY"
