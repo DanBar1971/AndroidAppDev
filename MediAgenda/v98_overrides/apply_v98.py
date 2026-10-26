@@ -236,3 +236,30 @@ build=root/'app/build.gradle.kts'
 replace(build,'versionCode = 89','versionCode = 90','version code')
 replace(build,'versionName = "1.9.79"','versionName = "1.9.80"','version name')
 print('v1.9.80 shortcuts reorder, concise cards, shared institution & explicit multi-residents')
+
+# Always restore official SaúdePrática artwork before compilation.
+# Portable base64 PNG resources are held in the repository; no private keys.
+import base64, struct, re
+artdir=Path("MediAgenda/v98_overrides/branding")
+resdir=root/"app/src/main/res/drawable-nodpi"
+resdir.mkdir(parents=True,exist_ok=True)
+for name in ("saude_background","saude_icon","saude_splash"):
+    data=base64.b64decode((artdir/(name+".png.b64")).read_text(encoding="ascii"))
+    if not data.startswith(b"\x89PNG\r\n\x1a\n"):
+        raise RuntimeError("Invalid SaúdePrática artwork: "+name)
+    width,height=struct.unpack(">II",data[16:24])
+    if width<900 or height<900 or len(data)<50000:
+        raise RuntimeError("Missing original quality image: "+name)
+    (resdir/(name+".png")).write_bytes(data)
+    print("Original image restored:",name,width,height,len(data))
+
+# Ensure launcher resolves to official artwork, not the placeholder mipmap.
+manifest=root/"app/src/main/AndroidManifest.xml"
+source=manifest.read_text(encoding="utf-8")
+source,n=re.subn(r'android:icon="@(?:mipmap|drawable)/[^"]+"',
+                 'android:icon="@drawable/saude_icon"',source,count=1)
+if n!=1: raise RuntimeError("No Android launcher icon attribute")
+source=re.sub(r'android:roundIcon="@(?:mipmap|drawable)/[^"]+"',
+              'android:roundIcon="@drawable/saude_icon"',source,count=1)
+manifest.write_text(source,encoding="utf-8")
+print("SaúdePrática official launcher and splash graphics: restored")
