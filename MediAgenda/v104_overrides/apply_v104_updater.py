@@ -28,6 +28,27 @@ patch(main,'''    override fun onResume() {
 
 checker=base/"SaudePraticaUpdateChecker.kt"
 patch(checker,
+'''        val download:String="",
+        val details:String=""''',
+'''        val download:String="",
+        val details:String="",
+        val digest:String=""''',"download digest field")
+patch(checker,
+'''                                var link=""
+                                if(assets!=null){''',
+'''                                var link=""
+                                var checksum=""
+                                if(assets!=null){''',"SHA response variable")
+patch(checker,
+'''                                            link=url
+                                            break''',
+'''                                            link=url
+                                            checksum=asset.optString("digest")
+                                            break''',"release asset SHA-256")
+patch(checker,
+'''                                        Answer("update",tag,link)''',
+'''                                        Answer("update",tag,link,digest=checksum)''',"carry SHA")
+patch(checker,
 '''                .setPositiveButton("Descarregar atualização"){_,_->
                     try{
                         activity.startActivity(Intent(Intent.ACTION_VIEW,
