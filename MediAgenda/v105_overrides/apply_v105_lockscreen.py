@@ -40,6 +40,6 @@ new='''        // A background Activity may still be the appTasks.topActivity wh
             android.util.Log.i("SaudePraticaAlarm",
                 "lockscreen FSI: locked=$locked interactive=$interactive enabled=$enabled")
         }'''
-if(s.count(old)!=1:raise RuntimeError("Expected foreground selection in v1.9.85 "+str(s.count(old)))
+if s.count(old)!=1:raise RuntimeError("Expected foreground selection in v1.9.85 "+str(s.count(old)))
 p.write_text(s.replace(old,new,1),encoding="utf-8")
 print("Lockscreen alarms always request HIGH channel + fullscreen PendingIntent")
