@@ -38,7 +38,7 @@ change("notifications/NotificationReceiver.kt",
                     if(MedicationAlarmGroup.outstanding(context,profileId,scheduledDoseAt,
                             groupIds).isEmpty())return
                     if(intent.action!="com.mediagenda.app.MED_ALARM_SNOOZED_FIRE" &&
-                        !MedicationAlarmGroup.claim(context,profileId,scheduledDoseAt,groupIds))return
+                        !MedicationAlarmGroup.claim(context,profileId,scheduledDoseAt,groupIds,medicationId))return
                     intent.putStringArrayListExtra("group_med_ids",ArrayList(groupIds))
                 }else if(MedicationAlarmCoordinator.wasConfirmed(context,profileId,
                     medicationId,scheduledDoseAt)){''',"group receiver dispatch and per-pill record")
