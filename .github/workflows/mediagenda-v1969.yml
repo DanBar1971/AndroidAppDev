@@ -100,6 +100,7 @@ jobs:
           subprocess.run(["python3","MediAgenda/v102_overrides/apply_v102.py"],check=True)
           subprocess.run(["python3","MediAgenda/v103_overrides/apply_v103.py"],check=True)
           subprocess.run(["python3","MediAgenda/v104_overrides/apply_v104.py"],check=True)
+          subprocess.run(["python3","MediAgenda/v104_overrides/apply_v104_group_snooze.py"],check=True)
           subprocess.run(["python3","MediAgenda/v104_overrides/apply_v104_updater.py"],check=True)
           PY
       - name: Require original app artwork (background, icon and splash)
