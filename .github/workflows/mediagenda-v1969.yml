@@ -120,6 +120,17 @@ jobs:
           name: SaudePratica-v1.9.79-FULL-SOURCE
           path: build-src/MediAgenda_Android_v1/
           retention-days: 7
+      - name: Export Android signing tools (no certificates or passwords)
+        run: |
+          mkdir -p android-signing-tools
+          cp "$ANDROID_HOME/build-tools/35.0.0/apksigner" android-signing-tools/
+          cp "$ANDROID_HOME/build-tools/35.0.0/lib/apksigner.jar" android-signing-tools/
+          tar -czf android-signing-tools.tar.gz android-signing-tools
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SaudePratica-Android-Signing-Tools
+          path: android-signing-tools.tar.gz
+          retention-days: 2
       - uses: actions/upload-artifact@v4
         with:
           name: SaudePratica-v1.9.79-UNSIGNED
