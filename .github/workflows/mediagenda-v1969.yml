@@ -94,7 +94,7 @@ jobs:
           PY
       - name: Require original app artwork (background, icon and splash)
         run: python3 MediAgenda/tools/verify_graphics.py
-      - name: Compile Android 1.9.82
+      - name: Compile Android 1.9.83
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleRelease
       - name: Check branded graphics exist inside compiled APK
@@ -194,7 +194,7 @@ jobs:
           cp SaudePratica-v1.9.83-SIGNED.apk SaudePratica.apk
           gh release create v1.9.83 SaudePratica.apk \
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title "SaúdePrática v1.9.83 — Lares e Apoio à Terceira Idade" \
-            --notes "Novo módulo de Lares com ERPI, Apoio Domiciliário, Centro de Dia, instituição e contactos, mensalidades ADSE e PDFs em Documentos Digitais. Envio e estados ADSE dependem de confirmação manual; não há submissão automática. Instalar sobre a versão anterior, com a mesma assinatura e sem apagar dados." \
+            --title "SaúdePrática v1.9.83 — Nutrição Gemini com chave privada no telemóvel" \
+            --notes "Nutrição: reconhecimento de vários alimentos pela fotografia com Gemini, chave API cifrada localmente pelo Android Keystore e teste no próprio telemóvel. Fotografias apenas enviadas após consentimento; porções, gramas e kcal sempre editáveis. Mantidos modo manual offline, histórico com fotos, Lares, Atalhos e gráficos originais. Instalar por cima da versão anterior, sem desinstalar." \
             --latest
           gh release view v1.9.83 --repo "$GITHUB_REPOSITORY"
