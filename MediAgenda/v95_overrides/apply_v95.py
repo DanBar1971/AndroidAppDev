@@ -48,8 +48,8 @@ object EmergencyCallHelper {
         val safe=number.takeIf{Regex("""\+?[0-9]{3,20}""").matches(it)}
             ?:return
         val direct=permissionGranted &&
-            ContextCompat.checkSelfPermission(activity,Manifest.permission.CALL_PHONE)
-                ==PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(activity,Manifest.permission.CALL_PHONE)==
+                PackageManager.PERMISSION_GRANTED
         val action=if(direct)Intent.ACTION_CALL else Intent.ACTION_DIAL
         try{
             activity.startActivity(Intent(action,Uri.fromParts("tel",safe,null)))
