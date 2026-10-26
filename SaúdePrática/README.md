@@ -18,3 +18,11 @@ A pasta `MediAgenda` é **legada** e permanece temporariamente para que as vers�
 - [Como publicar o APK assinado e manter um URL fixo](./PUBLICAR_APK_GITHUB.md)
 
 O download direto só estará disponível quando uma versão assinada for anexada a uma Release. Nunca publicar chaves de assinatura ou dados dos perfis.
+
+## Publicação automática verificada
+
+Desde a versão **v1.9.77**, as Releases podem ser publicadas automaticamente pelo [workflow de publicação](../.github/workflows/saudepratica-publish-release.yml) depois de preparada uma APK assinada e verificados os respetivos hashes SHA-256. Mantém-se o certificado privado fora do repositório; o workflow recusa APKs alteradas, não assinadas ou com hashes inesperados.
+
+**Regra do projeto:** uma nova versão não está concluída sem verificar a publicação no GitHub Releases, o asset `SaudePratica.apk` e a ligação permanente [Descarregar última versão](https://github.com/DanBar1971/AndroidAppDev/releases/latest/download/SaudePratica.apk).
+
+[Procedimento de publicação para as versões futuras](./PUBLICAR_APK_GITHUB.md)
