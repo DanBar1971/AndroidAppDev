@@ -31,6 +31,7 @@ change(receiver,'''                runCatching{MedicationAlarmService.start(cont
                 return''',"avoid two notifications")
 
 alarm=base/"notifications/MedicationAlarmService.kt"
+change(alarm,"import android.view.WindowManager","import android.view.WindowManager\nimport android.view.View","view import")
 change(alarm,'''        val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
