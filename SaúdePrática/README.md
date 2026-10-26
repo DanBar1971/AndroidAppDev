@@ -7,6 +7,8 @@ Projeto oficial: **SaúdePrática** (anteriormente conhecido internamente como *
 - [Histórico e módulos de compilação](../MediAgenda/)
 - [Compilação Android da versão atual](../.github/workflows/mediagenda-v1969.yml)
 - [Módulo Atalhos Importantes, v1.9.78](../MediAgenda/v96_overrides/apply_v96.py)
+- [Módulo Lares e Apoio à Terceira Idade, v1.9.79](../MediAgenda/v97_overrides/apply_v97.py)
+- [**Instruções permanentes de continuidade entre chats e publicação das Releases**](./INSTRUCOES_DE_CONTINUIDADE.md)
 
 A pasta `MediAgenda` é **legada** e permanece temporariamente para que as versões antigas e o processo de reconstrução do projeto continuem a funcionar. O nome público e de produto é **SaúdePrática**. O pacote instalado no Android mantém-se igual, para preservar atualizações e dados.
 
@@ -35,4 +37,10 @@ Desde a versão **v1.9.77**, as Releases podem ser publicadas automaticamente pe
 - Favicons carregados em segundo plano e guardados na cache; fallback para serviço de favicons da Google ou para o ícone 🌐.
 - Configuração guardada localmente, independente dos perfis de saúde; não é incluída na sincronização familiar.
 
-**Release atual:** [v1.9.78](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.78). O arquivo publicado mantém o nome fixo `SaudePratica.apk`.
+## Lares e Apoio à Terceira Idade (v1.9.79)
+
+- Apoio a ERPI, SAD e Centro de Dia, incluindo registo da instituição, contactos e valência por perfil.
+- Faturas mensais, acompanhamento manual da ADSE e documentos PDF/fotografias em Documentos Digitais.
+- Requisitos completos em [Módulo Lares](./MODULO_LARES_APOIO_TERCEIRA_IDADE.md).
+
+**Release atual:** [v1.9.79](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.79), publicada e verificada com o asset `SaudePratica.apk` e certificado original. A versão nova deve ser sempre publicada automaticamente e confirmada em GitHub Releases.
