@@ -6,7 +6,7 @@ Projeto oficial: **SaúdePrática** (anteriormente conhecido internamente como *
 
 - [Histórico e módulos de compilação](../MediAgenda/)
 - [Compilação Android da versão atual](../.github/workflows/mediagenda-v1969.yml)
-- [Correções de alarmes e interface, v1.9.74](../MediAgenda/v92_overrides/apply_v92.py)
+- [Módulo Atalhos Importantes, v1.9.78](../MediAgenda/v96_overrides/apply_v96.py)
 
 A pasta `MediAgenda` é **legada** e permanece temporariamente para que as versões antigas e o processo de reconstrução do projeto continuem a funcionar. O nome público e de produto é **SaúdePrática**. O pacote instalado no Android mantém-se igual, para preservar atualizações e dados.
 
@@ -26,3 +26,13 @@ Desde a versão **v1.9.77**, as Releases podem ser publicadas automaticamente pe
 **Regra do projeto:** uma nova versão não está concluída sem verificar a publicação no GitHub Releases, o asset `SaudePratica.apk` e a ligação permanente [Descarregar última versão](https://github.com/DanBar1971/AndroidAppDev/releases/latest/download/SaudePratica.apk).
 
 [Procedimento de publicação para as versões futuras](./PUBLICAR_APK_GITHUB.md)
+
+## Atalhos Importantes (v1.9.78)
+
+- Ecrã inicial: **🔗 Atalhos Importantes**, para abrir URLs no navegador predefinido do Android.
+- Configuração: **Opções → Atalhos Importantes**. Permite adicionar, editar e eliminar links.
+- Quatro atalhos inicialmente disponíveis: ADSE Direta, CGA Direta, Portal das Finanças/IRS e APATI Castanheira.
+- Favicons carregados em segundo plano e guardados na cache; fallback para serviço de favicons da Google ou para o ícone 🌐.
+- Configuração guardada localmente, independente dos perfis de saúde; não é incluída na sincronização familiar.
+
+**Release atual:** [v1.9.78](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.78). O arquivo publicado mantém o nome fixo `SaudePratica.apk`.
