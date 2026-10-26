@@ -54,9 +54,9 @@ internal object EmbeddedMedicationImporter {
                     "Fotografia $name incompleta ou alterada."
                 }
                 val id=profileId.replace(Regex("[^A-Za-z0-9_-]"),"_").take(50)
-                val dest=File(dir,"medimport_\${id}_\${digest.take(32)}.\${if(png)"png" else "jpg"}")
+                val dest=File(dir,"medimport_${id}_${digest.take(32)}.${if(png)"png" else "jpg"}")
                 if(!dest.isFile){
-                    val temp=File(dir,".medimport_\${UUID.randomUUID()}.tmp")
+                    val temp=File(dir,".medimport_${UUID.randomUUID()}.tmp")
                     temp.writeBytes(raw)
                     staged.add(temp to dest)
                 }
