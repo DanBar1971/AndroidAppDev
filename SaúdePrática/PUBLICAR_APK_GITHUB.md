@@ -45,4 +45,20 @@ A aplicação consulta, no máximo uma vez de 12 em 12 horas, a API pública Git
 - Não instalar silenciosamente, não permitir downgrade, não solicitar credenciais ou dados médicos durante a verificação.
 - Enquanto não existir uma Release pública, a API devolve 404 e a app explica o motivo.
 
-**Publicação inicial manual:** [Criar Release](https://github.com/DanBar1971/AndroidAppDev/releases/new) com a APK assinada. O conector GitHub atual não expõe a criação de Releases com upload binário; o download fixo não funciona até esta etapa ser concluída.
+**Primeira Release:** a versão v1.9.76 já foi publicada manualmente. A v1.9.77 foi publicada automaticamente no GitHub Actions em 26/10/2026 com verificação integral de SHA-256.
+
+## Processo oficial: publicação automática após a APK estar assinada
+
+**Preferência de manutenção do projeto:** cada atualização da SaúdePrática deve ser compilada, assinada, validada e **publicada numa Release pública do GitHub**, sem pedir ao utilizador que volte a anexar manualmente a APK. Confirmar também que `releases/latest` aponta para a nova versão e que o asset se chama sempre `SaudePratica.apk`.
+
+Workflow: [Publicar SaúdePrática APK assinado](../.github/workflows/saudepratica-publish-release.yml).
+
+1. Produzir uma APK assinada com o certificado original e validar assinaturas v2/v3, package ID, versionCode, versionName e imagens.
+2. Se a chave de assinatura só estiver disponível no ambiente privado, criar um delta binário **entre a APK assinada já publicada e a APK assinada nova**, usando `zstd --patch-from=SaudePratica-anterior.apk -7 nova.apk -o delta.zst`. O delta não contém a keystore. Guardar em pedaços de texto Base64 `delta.part00.b64` etc. no diretório `SaúdePrática/release-patches/vX.Y.Z/`.
+3. Preparar `release-notes.md` e um `manifest.json` com a tag, a tag de base e os hashes SHA-256 da APK anterior, do delta e da APK nova.
+4. Guardar **`manifest.json` por último**. Um push desse ficheiro para `master` inicia automaticamente o workflow, que descarrega a APK anterior publicada, reconstrói a APK nova, verifica os três hashes e a assinatura Android e publica a Release `vX.Y.Z` com o asset `SaudePratica.apk`.
+5. Verificar via GitHub Releases API que a versão é `Latest`, não está em draft/prerelease e que o SHA-256 do asset corresponde à APK previamente validada. O workflow recusa substituir uma Release existente.
+
+A alternativa preferencial para o futuro, se os segredos de assinatura vierem a ser configurados no GitHub, é construir e assinar diretamente dentro do GitHub Actions. Até lá, o método de delta mantém o certificado **privado** e permite publicação totalmente automatizada depois de preparada a APK assinada.
+
+**Não guardar passwords, keystores, dados de saúde ou fotografias pessoais no repositório público.**
