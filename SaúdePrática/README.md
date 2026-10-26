@@ -43,7 +43,7 @@ Desde a versão **v1.9.77**, as Releases podem ser publicadas automaticamente pe
 - Faturas mensais, acompanhamento manual da ADSE e documentos PDF/fotografias em Documentos Digitais.
 - Requisitos completos em [Módulo Lares](./MODULO_LARES_APOIO_TERCEIRA_IDADE.md).
 
-**Release atual:** [v1.9.82](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.82) — Nutrição: refeições com vários alimentos, fotografias visíveis no histórico e correção de sugestões não fiáveis; APK original assinada, gráficos preservados.
+**Release atual:** [v1.9.84](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.84) — Medicação: importação de JSON com imagens incorporadas, fotografias materializadas localmente no perfil selecionado. APK assinada com o certificado original e gráficos preservados.
 
 ## Novidades v1.9.80
 
@@ -76,3 +76,10 @@ Documentação de implementação: [patch v101](../MediAgenda/v101_overrides/app
 - O modo manual offline, histórico de fotografias por perfil e eliminação de refeições continuam operacionais.
 - Projeto/implementação: [v100](../MediAgenda/v100_overrides/apply_v100.py) e [serviço central Gemini](../MediAgenda/cloud/central-meal-ai/GEMINI_SETUP_PT.md).
 - Nunca afirmar que Gemini online está ativo enquanto `MediAgenda/cloud/meal-ai-config.json` apresentar `enabled:false`.
+
+## Medicação com fotografias portáteis (v1.9.84)
+
+- Importar um JSON com `embedded_medication_images` e `embedded_image_names` cria fotografias privadas associadas aos medicamentos do perfil ativo, sem enviar dados para a Internet.
+- Compatibilidade com importações JSON antigas mantida. Os ficheiros de pessoas reais não são publicados no repositório.
+- **Antes de importar:** escolher o perfil correto e fazer backup. A lista de medicação é substituída pelo conteúdo do JSON importado.
+- [Instruções e formato](./IMPORTAR_MEDICACAO_COM_FOTOGRAFIAS.md).
