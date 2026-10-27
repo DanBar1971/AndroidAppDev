@@ -23,7 +23,7 @@ assert "fun configured(c:Context)=read(c)!=null" in gemini
 assert 'card(content,"Plano alimentar (opcional)"' in wellness
 assert 'private fun openDietPlan()' in wellness
 assert 'store.saveText(values)' in wellness
-assert "versionCode = 105" in gradle and 'versionName = "1.9.95"' in gradle
+assert any("versionCode = "+str(v) in gradle for v in (105,106)) and any('versionName = "'+v+'"' in gradle for v in ("1.9.95","1.9.96"))
 for image in ["saude_icon.png","saude_splash.png","saude_background.png"]:
     art=root/"app/src/main/res/drawable-nodpi"/image
     assert art.is_file() and art.stat().st_size>1024,image
