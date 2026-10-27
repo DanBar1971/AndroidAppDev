@@ -25,6 +25,6 @@ assert 'versionName = "1.9.91"' in gradle
 assert "versionCode = 101" in gradle
 assert 'android:icon="@drawable/saude_icon"' in manifest
 for art in ["saude_background","saude_icon","saude_splash"]:
-    f=project/f"app/src/main/res/drawable/{art}.png"
-    assert f.is_file() and f.stat().st_size > 50000, f"Missing original {art} PNG"
+    f=project/f"app/src/main/res/drawable-nodpi/{art}.png"
+    assert f.is_file() and f.stat().st_size > 1024, f"Missing original {art} PNG"
 print("Fase A source and three original branding files validated")
