@@ -54,3 +54,8 @@ Estas entradas sugerem perfis clonados na sincronização. Auditar a importaçã
 - **Ainda pendente de teste real:** permissão de ecrã completo e comportamento HyperOS com PIN/lockscreen, alarmes nos dias seguintes após retirar horário, agrupamento/snooze, fluxos do cuidador, sintomas de clonagem na sincronização, e validação do APK assinado.
 - **A fusão/associação permanente das cópias «Regina (recebido de...)» NÃO foi implementada**, para não misturar identidades e dados clínicos indevidamente. Os perfis e registos não foram eliminados. Deduplicação introduzida é só visual e só para avisos coincidentes com o perfil principal.
 - **Release pública v1.9.88 não confirmada**: Git tag v1.9.88 ainda não estava acessível no último teste. Verificar Actions e publicação final antes de informar conclusão.
+
+## Publicação verificada 27-10-2026
+- [Release v1.9.88](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.88): disponível com o ficheiro `SaudePratica.apk` (153237558 bytes), SHA-256 `e17b1476d376d0b8bb746c70fde9e6f88759b74bba18eafb8ba6ec4d7fea6de9`.
+- [Workflow de publicação](https://github.com/DanBar1971/AndroidAppDev/actions/runs/40470790809): sucesso. APK reconstruída e verificada; certificado Android comparado com a v1.9.87; download Latest conferido byte a byte.
+- **Continuam pendentes testes funcionais no telemóvel** e a associação definitiva de perfis duplicados por sincronização. Não fundir nem eliminar automaticamente dados clínicos.
