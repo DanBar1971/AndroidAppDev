@@ -241,7 +241,7 @@ patch('data/WellnessStore.kt','''    fun todayMl(): Int {''','''    /** Adds flu
      */
     fun increaseTarget(extra:Int):Int{
         require(extra in 100..3000){"Acrescenta entre 100 ml e 3 litros."}
-        val newTarget=(todayMl()+extra).coerceAtMost(10000)
+        val newTarget=(maxOf(optionalTargetMl,todayMl())+extra).coerceAtMost(10000)
         require(newTarget>todayMl()){"Já atingiste o limite configurável."}
         check(prefs.edit().putInt("water_target_ml",newTarget)
             .remove("water_goal_notified_date").commit()){
