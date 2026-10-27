@@ -13,6 +13,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.provider.Settings
 import android.widget.ProgressBar
 import androidx.core.app.NotificationCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -121,6 +122,13 @@ internal object InAppUpdateInstaller {
 
     fun resumeIfAllowed(activity: Activity) {
         val store = prefs(activity)
+        if (store.getBoolean("awaiting_install_permission", false) &&
+            (Build.VERSION.SDK_INT < 26 ||
+             activity.packageManager.canRequestPackageInstalls())) {
+            store.edit().remove("awaiting_install_permission").apply()
+            finishInstallation(activity)
+            return
+        }
         val id = store.getLong("download_id", -1L)
         if (id <= 0L || store.getLong("alerted_id", -1L) == id) return
         val status = runCatching { queryStatus(activity, id).first }.getOrDefault(-1)
@@ -167,6 +175,23 @@ internal object InAppUpdateInstaller {
     }
 
     fun finishInstallation(activity: Activity) {
+        if (Build.VERSION.SDK_INT >= 26 &&
+            !activity.packageManager.canRequestPackageInstalls()) {
+            MaterialAlertDialogBuilder(activity)
+                .setTitle("Autorizar a instalação desta fonte")
+                .setMessage("Para instalar a APK, o Android precisa de autorização para "+
+                    "atualizações fornecidas pela SaúdePrática. "+
+                    "A instalação continuará a exigir a tua confirmação.")
+                .setNegativeButton("Cancelar", null)
+                .setPositiveButton("Abrir definições") { _, _ ->
+                    prefs(activity).edit()
+                        .putBoolean("awaiting_install_permission", true).apply()
+                    activity.startActivity(Intent(
+                        Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                        Uri.parse("package:"+activity.packageName)))
+                }.show()
+            return
+        }
         val id = prefs(activity).getLong("download_id", -1L)
         if (id <= 0L) {
             alert(activity, "Não existe uma APK descarregada por esta aplicação.")
@@ -290,6 +315,11 @@ class UpdateDownloadReceiver : BroadcastReceiver() {
 }
 
 class UpdateDownloadedActivity : Activity() {
+    override fun onResume() {
+        super.onResume()
+        InAppUpdateInstaller.resumeIfAllowed(this)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MaterialAlertDialogBuilder(this)
