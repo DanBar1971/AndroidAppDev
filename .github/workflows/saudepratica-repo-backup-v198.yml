@@ -1,0 +1,34 @@
+name: "SaudePratica v1.9.98 - Backup do repositório de fontes"
+on:
+  push:
+    branches: [fix/saudepratica-198-nutrition-review-ui]
+    paths:
+      - ".github/workflows/saudepratica-repo-backup-v198.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Archive project source and patches (no secrets or git metadata)
+        shell: bash
+        run: |
+          set -euo pipefail
+          git archive --format=zip --output=SaudePratica-v1.9.98-REPOSITORIO.zip HEAD
+          sha256sum SaudePratica-v1.9.98-REPOSITORIO.zip > SaudePratica-v1.9.98-REPOSITORIO.sha256
+          echo "Source commit: $GITHUB_SHA"
+          ls -lh SaudePratica-v1.9.98-REPOSITORIO.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SaudePratica-v1.9.98-REPO-BACKUP
+          path: |
+            SaudePratica-v1.9.98-REPOSITORIO.zip
+            SaudePratica-v1.9.98-REPOSITORIO.sha256
+          if-no-files-found: error
+          retention-days: 7

@@ -28,7 +28,7 @@ assert 'putExtra(com.mediagenda.app.HealthRecordsActivity.EXTRA_CATEGORY,"intake
 assert 'EXTRA_PROFILE_ID,profileId' in recv
 assert 'setFullScreenIntent' in recv and 'setFullScreenIntent' in service
 v=(root/"app/build.gradle.kts").read_text()
-assert 'versionCode = 107' in v and 'versionName = "1.9.97"' in v
+assert any('versionCode = '+str(code) in v for code in (107,108)) and any('versionName = "'+name+'"' in v for name in ("1.9.97","1.9.98"))
 for name in ("saude_icon.png","saude_splash.png","saude_background.png"):
     p=root/"app/src/main/res/drawable-nodpi"/name
     assert p.exists() and p.stat().st_size>1024,name

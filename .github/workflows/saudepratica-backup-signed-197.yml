@@ -1,0 +1,42 @@
+name: "SaudePratica - Cópia segura APK assinada v1.9.97"
+on:
+  push:
+    branches: [fix/saudepratica-198-nutrition-review-ui]
+    paths:
+      - ".github/workflows/saudepratica-backup-signed-197.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Download signed public v1.9.97 and check SHA256
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 5 --retry-all-errors --connect-timeout 25             "https://github.com/DanBar1971/AndroidAppDev/releases/download/v1.9.97/SaudePratica.apk"             -o SaudePratica-v1.9.97-SIGNED.apk
+          echo "33ce4ee61fedbc2c54eaf921736ec69752561d56f82c9c4c802912a62a6e5f33  SaudePratica-v1.9.97-SIGNED.apk" | sha256sum -c
+      - name: Verify APK Android package and certificate
+        shell: bash
+        run: |
+          set -euo pipefail
+          AAPT="$(find "$ANDROID_HOME/build-tools" -type f -name aapt2 | sort -V | tail -n1)"
+          SIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n1)"
+          test -x "$AAPT" && test -x "$SIGNER"
+          "$SIGNER" verify --verbose SaudePratica-v1.9.97-SIGNED.apk
+          BADGING="$("$AAPT" dump badging SaudePratica-v1.9.97-SIGNED.apk | head -n1)"
+          echo "$BADGING"
+          echo "$BADGING" | grep -F "name='com.mediagenda.app.stable'"
+          echo "$BADGING" | grep -F "versionName='1.9.97'"
+          "$SIGNER" verify --print-certs SaudePratica-v1.9.97-SIGNED.apk | grep 'certificate SHA-256 digest'
+          sha256sum SaudePratica-v1.9.97-SIGNED.apk > SaudePratica-v1.9.97.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SaudePratica-v1.9.97-SIGNED-BACKUP
+          path: |
+            SaudePratica-v1.9.97-SIGNED.apk
+            SaudePratica-v1.9.97.sha256
+          if-no-files-found: error
+          retention-days: 7
