@@ -180,7 +180,12 @@ jobs:
           PY
       - name: Check output version
         run: |
-          "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk | head -n 3
+          BADGING="$("$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk | head -n 1)"
+          echo "$BADGING"
+          echo "$BADGING" | grep -F "name='com.mediagenda.app.stable'"
+          echo "$BADGING" | grep -F "versionCode='108'"
+          echo "$BADGING" | grep -F "versionName='1.9.98'"
+          grep -F 'versionCode = 108' build-src/MediAgenda_Android_v1/app/build.gradle.kts
           grep -F 'versionName = "1.9.98"' build-src/MediAgenda_Android_v1/app/build.gradle.kts
       - name: Sign release APK with existing key when available
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
@@ -205,6 +210,11 @@ jobs:
             --out SaudePratica-v1.9.98-SIGNED.apk \
             build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose SaudePratica-v1.9.98-SIGNED.apk
+          BADGING="$("$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging SaudePratica-v1.9.98-SIGNED.apk | head -n 1)"
+          echo "$BADGING"
+          echo "$BADGING" | grep -F "name='com.mediagenda.app.stable'"
+          echo "$BADGING" | grep -F "versionCode='108'"
+          echo "$BADGING" | grep -F "versionName='1.9.98'"
       - uses: actions/upload-artifact@v4
         with:
           name: SaudePratica-v1.9.98-SIGNED
@@ -250,6 +260,8 @@ jobs:
           curl -fL --retry 4 --retry-all-errors --connect-timeout 20 \
             "https://github.com/$GITHUB_REPOSITORY/releases/download/v1.9.97/SaudePratica.apk" \
             -o "$RUNNER_TEMP/stable-v1.9.97.apk"
+          "$SDK_APKSIGNER" verify --verbose "$RUNNER_TEMP/stable-v1.9.97.apk"
+          "$SDK_APKSIGNER" verify --verbose SaudePratica-v1.9.98-SIGNED.apk
           PREVIOUS="$("$SDK_APKSIGNER" verify --print-certs "$RUNNER_TEMP/stable-v1.9.97.apk" |
             grep 'Signer #1 certificate SHA-256 digest:' | head -1 | awk '{print $NF}')"
           CANDIDATE="$("$SDK_APKSIGNER" verify --print-certs SaudePratica-v1.9.98-SIGNED.apk |
@@ -266,7 +278,7 @@ jobs:
           gh release create v1.9.98 SaudePratica.apk \
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
             --title "SaúdePrática v1.9.98 — Nutrição: guardar refeição e interface corrigida" \
-            --notes "Nutrição: API Gemini sempre configurável antes de escolher foto; remove fallback silencioso para serviço desativado; progresso e erros visíveis; organização simples de refeições com reconhecimento offline apenas opcional; plano alimentar secundário sem apagar dados. Mantém Fases A-D e imagens oficiais." \
+            --notes-file "MediAgenda/v117_overrides/RELEASE_NOTES.md" \
             --latest
           gh release view v1.9.98 --repo "$GITHUB_REPOSITORY"
           gh release view v1.9.98 --repo "$GITHUB_REPOSITORY" --json tagName,assets \
