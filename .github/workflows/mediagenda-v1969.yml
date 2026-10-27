@@ -147,6 +147,7 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk | head -n 3
           grep -F 'versionName = "1.9.91"' build-src/MediAgenda_Android_v1/app/build.gradle.kts
       - name: Sign release APK with existing key when available
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         env:
           KEY_B64: ${{ secrets.SAUDEPRATICA_KEYSTORE_B64 }}
           KEY_PASS: ${{ secrets.SAUDEPRATICA_KEYSTORE_PASSWORD }}
@@ -199,6 +200,7 @@ jobs:
           retention-days: 7
 
       - name: Verify original signing identity and publish v1.9.91 release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
