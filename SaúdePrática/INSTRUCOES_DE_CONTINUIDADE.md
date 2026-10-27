@@ -36,3 +36,10 @@
 - Última Release confirmada: **v1.9.80**, ficheiro exato `SaudePratica.apk`, SHA256 `1f523d51ef8168dcc6c864e049f7914f6d0e1abb0e3c7a62437c2a30803cba9f`.
 - **Lares**: catálogo partilhado da instituição, residentes explicitamente associados, selecionar Camy ou outro familiar; cada fatura, nota, documento e valência pertence exclusivamente a um perfil ID.
 - **Atalhos**: ordem personalizada persistente com Subir/Descer.
+
+## REGRA INEGOCIÁVEL — Releases obrigatórias (27-10-2026)
+- **NUNCA dar uma versão da SaúdePrática por concluída só porque o código foi alterado, compilado ou enviado para o GitHub.** A conclusão exige GitHub Release pública efetivamente criada e verificada.
+- **Em CADA alteração com nova versão:** aplicar código → compilar → testar/verificar APK → assinar com certificado original → publicar Release/tag vX.Y.Z com asset exato `SaudePratica.apk`, changelog e código-fonte → confirmar pela API/ligação pública que o download funciona e que a Release é a Latest correta.
+- Se qualquer passo de publicação falhar ou estiver indisponível, **não afirmar que a versão foi lançada**: informar explicitamente que está pendente e qual o bloqueio, sem passar a outro trabalho como se estivesse terminada.
+- A v1.9.87 (correção do instalador Android PackageInstaller.Session) deve seguir esta checklist; verificar a publicação antes de anunciá-la.
+- Esta instrução é permanente, aplicável a todos os chats futuros do projeto Android Apps/SaúdePrática, sem necessidade de o utilizador repetir o pedido.
