@@ -221,11 +221,11 @@ once('.put("note",note.text.toString().take(500)).put("estimated",result!=null)'
      '                    .put("source",result?.optString("source","manual") ?: "manual")\n'
      '                    .put("barcode",result?.optString("barcode","") ?: "")',
      'source metadata')
-once('''            "\n\n${row.optString("note")}",14f))''',
-'''            "\nOrigem: "+row.optString("source","manual")+
+once(r'''            "\n\n${row.optString("note")}",14f))''',
+r'''            "\nOrigem: "+row.optString("source","manual")+
             (if(row.optString("barcode").isBlank())"" else
                 "\nEAN/UPC: "+row.optString("barcode"))+
-            "\n\n${row.optString("note")}",14f))''','show data origin')
+            "\n\n${row.optString("note")}",14f))''',"show data origin")
 meal.write_text(s,encoding='utf-8')
 
 p=base/'MealGeminiDirect.kt'
