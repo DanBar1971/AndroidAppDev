@@ -29,7 +29,7 @@ jobs:
           set -euo pipefail
           DIR='SaúdePrática/release-unsigned-patches/v1.9.96'
           jq -e '.tag=="v1.9.96" and .asset=="SaudePratica.apk" and
-            .unsigned_run_id==40504454815 and
+            .unsigned_run_id==40504803523 and
             .unsigned_artifact=="SaudePratica-v1.9.96-UNSIGNED" and
             .base_tag=="v1.9.95" and
             (.unsigned_sha256|test("^[0-9a-f]{64}$")) and
@@ -42,7 +42,7 @@ jobs:
             exit 1
           fi
           mkdir -p unsigned
-          gh run download 40504454815 --repo "$GITHUB_REPOSITORY" \
+          gh run download 40504803523 --repo "$GITHUB_REPOSITORY" \
             --name 'SaudePratica-v1.9.96-UNSIGNED' --dir unsigned
           test "$(find unsigned -name '*.apk' -type f | wc -l)" -eq 1
           cp "$(find unsigned -name '*.apk' -type f | head -n1)" unsigned.apk
