@@ -78,7 +78,7 @@ jobs:
           echo "$PKG"
           echo "$PKG" | grep -F "name='com.mediagenda.app.stable'"
           echo "$PKG" | grep -F "versionCode='109'"
-          echo "$PKG" | grep -F "versionName='1.9.98'"
+          echo "$PKG" | grep -F "versionName='1.9.99'"
           curl -fL --retry 6 --retry-all-errors --connect-timeout 25 \
             "https://github.com/$GITHUB_REPOSITORY/releases/download/v1.9.98/SaudePratica.apk" -o previous.apk
           "$SIGNER" verify --verbose previous.apk
