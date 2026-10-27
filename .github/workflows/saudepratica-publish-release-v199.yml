@@ -1,0 +1,134 @@
+name: "Publicar SaúdePrática v1.9.99 — APK original e backups seguros"
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'SaúdePrática/release-unsigned-patches/v1.9.99/manifest.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: saudepratica-release-v1-9-99
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout source and encrypted recovery copy
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Download precise unsigned build and verify hashes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          DIR='SaúdePrática/release-unsigned-patches/v1.9.99'
+          jq -e '.tag=="v1.9.99" and .asset=="SaudePratica.apk" and
+            .unsigned_run_id==40543094290 and
+            .unsigned_artifact=="SaudePratica-v1.9.99-UNSIGNED" and
+            .base_tag=="v1.9.98" and
+            (.unsigned_sha256|test("^[0-9a-f]{64}$")) and
+            (.apk_sha256|test("^[0-9a-f]{64}$")) and
+            (.delta_sha256|test("^[0-9a-f]{64}$")) and
+            (.encrypted_key_sha256|test("^[0-9a-f]{64}$"))' "$DIR/manifest.json"
+          test -s MediAgenda/v118_overrides/RELEASE_NOTES.md
+          if gh release view v1.9.99 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::v1.9.99 already published; refusing overwrite"
+            exit 1
+          fi
+          mkdir -p unsigned
+          gh run download 40543094290 --repo "$GITHUB_REPOSITORY" \
+            --name SaudePratica-v1.9.99-UNSIGNED --dir unsigned
+          test "$(find unsigned -name '*.apk' -type f | wc -l)" -eq 1
+          cp "$(find unsigned -name '*.apk' -type f | head -n1)" unsigned.apk
+          echo "$(jq -r .unsigned_sha256 "$DIR/manifest.json")  unsigned.apk" | sha256sum -c
+
+      - name: Reconstitute EXACT original-key signed APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          DIR='SaúdePrática/release-unsigned-patches/v1.9.99'
+          test "$(find "$DIR" -maxdepth 1 -name 'delta.part*.b64' | wc -l)" -eq 17
+          cat "$DIR"/delta.part*.b64 | base64 --decode > signed.patch.zst
+          echo "$(jq -r .delta_sha256 "$DIR/manifest.json")  signed.patch.zst" | sha256sum -c
+          zstd --decompress --long=28 --patch-from=unsigned.apk signed.patch.zst -o SaudePratica.apk
+          echo "$(jq -r .apk_sha256 "$DIR/manifest.json")  SaudePratica.apk" | sha256sum -c
+
+      - name: Verify package version, signer, and installed-update identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | head -n1)"
+          fi
+          "$SDKMANAGER" 'build-tools;35.0.0' >/dev/null
+          SIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt2"
+          "$SIGNER" verify --verbose SaudePratica.apk
+          PKG="$("$AAPT" dump badging SaudePratica.apk | head -n1)"
+          echo "$PKG"
+          echo "$PKG" | grep -F "name='com.mediagenda.app.stable'"
+          echo "$PKG" | grep -F "versionCode='109'"
+          echo "$PKG" | grep -F "versionName='1.9.98'"
+          curl -fL --retry 6 --retry-all-errors --connect-timeout 25 \
+            "https://github.com/$GITHUB_REPOSITORY/releases/download/v1.9.98/SaudePratica.apk" -o previous.apk
+          "$SIGNER" verify --verbose previous.apk
+          PREVIOUS="$("$SIGNER" verify --print-certs previous.apk | awk '/Signer #1 certificate SHA-256 digest:/{print $NF; exit}')"
+          CURRENT="$("$SIGNER" verify --print-certs SaudePratica.apk | awk '/Signer #1 certificate SHA-256 digest:/{print $NF; exit}')"
+          test "$CURRENT" = "$PREVIOUS" && test "$CURRENT" = '7f67082f5e0de76986a0078d5f998e65467c8468f4d09b0caf8e4b332cc60e6a'
+          CERT_SHA="$(openssl x509 -in 'SaúdePrática/release-unsigned-patches/v1.9.98/MediAgenda-certificado-publico.pem' -noout -fingerprint -sha256 | cut -d= -f2 | tr -d ':' | tr 'A-Z' 'a-z')"
+          test "$CERT_SHA" = "$CURRENT"
+          echo "Original Android signing certificate matches installed release."
+
+      - name: Build public recovery assets and source backup (NO plaintext private key)
+        shell: bash
+        run: |
+          set -euo pipefail
+          DIR='SaúdePrática/release-unsigned-patches/v1.9.99'
+          base64 --decode "SaúdePrática/release-unsigned-patches/v1.9.98/MediAgenda-CHAVE-PRIVADA-ENCRIPTADA.aesgcm.b64" > MediAgenda-CHAVE-PRIVADA-ENCRIPTADA.aesgcm
+          echo "$(jq -r .encrypted_key_sha256 "$DIR/manifest.json")  MediAgenda-CHAVE-PRIVADA-ENCRIPTADA.aesgcm" | sha256sum -c
+          cp "SaúdePrática/release-unsigned-patches/v1.9.98/MediAgenda-certificado-publico.pem" MediAgenda-certificado-publico.pem
+          cp "SaúdePrática/release-unsigned-patches/v1.9.98/recuperar_chave.py" recuperar_chave.py
+          git archive --format=zip -o SaudePratica-v1.9.99-CODIGO-FONTE.zip HEAD
+          sha256sum SaudePratica.apk SaudePratica-v1.9.99-CODIGO-FONTE.zip \
+            MediAgenda-certificado-publico.pem MediAgenda-CHAVE-PRIVADA-ENCRIPTADA.aesgcm \
+            recuperar_chave.py > SaudePratica-v1.9.99-SHA256SUMS.txt
+          echo 'NOTE: Private recovery token is intentionally NOT in GitHub.'
+          test ! -e MediAgenda-Chave-Assinatura-PRIVADA.zip
+
+      - name: Publish public GitHub Release with verified signed APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release create v1.9.99 \
+            SaudePratica.apk \
+            SaudePratica-v1.9.99-SHA256SUMS.txt \
+            SaudePratica-v1.9.99-CODIGO-FONTE.zip \
+            MediAgenda-certificado-publico.pem \
+            MediAgenda-CHAVE-PRIVADA-ENCRIPTADA.aesgcm \
+            recuperar_chave.py \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "SaúdePrática v1.9.99 — Corrigir Gemini 429/503 na Nutrição" \
+            --notes-file MediAgenda/v118_overrides/RELEASE_NOTES.md --latest
+          gh release view v1.9.99 --repo "$GITHUB_REPOSITORY" \
+            --json tagName,assets,isDraft,isPrerelease | \
+            jq -e '.tagName=="v1.9.99" and (.isDraft|not) and (.isPrerelease|not)
+              and any(.assets[]; .name=="SaudePratica.apk")
+              and any(.assets[]; .name=="MediAgenda-certificado-publico.pem")
+              and any(.assets[]; .name=="MediAgenda-CHAVE-PRIVADA-ENCRIPTADA.aesgcm")'
+          curl -fL --retry 6 --retry-all-errors --connect-timeout 25 \
+            "https://github.com/$GITHUB_REPOSITORY/releases/latest/download/SaudePratica.apk" -o latest.apk
+          cmp SaudePratica.apk latest.apk
+          sha256sum latest.apk
+          echo "SIGNED v1.9.99 APK PUBLISHED + PUBLIC CERTIFICATE + ENCRYPTED KEY BACKUP."
