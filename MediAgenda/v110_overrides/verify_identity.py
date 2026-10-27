@@ -21,8 +21,8 @@ for required in [
 ]:
     assert required in sync, f"Fase A missing identity safeguard: {required}"
 assert "firstOrNull{it.name.equals(name,ignoreCase=true)}" not in sync, "Unsafe name-based merge"
-assert any('versionName = "'+v+'"' in gradle for v in ("1.9.91","1.9.92","1.9.93"))
-assert any("versionCode = "+str(v) in gradle for v in (101,102,103))
+assert any('versionName = "'+v+'"' in gradle for v in ("1.9.91","1.9.92","1.9.93","1.9.94"))
+assert any("versionCode = "+str(v) in gradle for v in (101,102,103,104))
 assert 'android:icon="@drawable/saude_icon"' in manifest
 for art in ["saude_background","saude_icon","saude_splash"]:
     f=project/f"app/src/main/res/drawable-nodpi/{art}.png"
