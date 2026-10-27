@@ -9,7 +9,8 @@ gradle=(root/"app/build.gradle.kts").read_text(encoding="utf-8")
 assert "🔑 Configurar API Gemini" in meal
 assert 'panel("Inteligência artificial · Gemini"' in meal
 assert meal.index('p.addView(button("📷 Fotografar refeição")') < meal.index("if(photo!=null)") < meal.index('val tools=panel("Outras formas de registar"')
-assert "photo=mem.toByteArray();draw()" in meal
+assert "photo=mem.toByteArray();lastGeminiResult=null;draw()" in meal
+assert "photo=mem.toByteArray();draw();detectOffline()" not in meal
 assert "photo=mem.toByteArray();draw();detectOffline()" not in meal
 assert "Gemini por configurar" in meal and "configurarGemini()" in meal
 assert 'https://aistudio.google.com/apikey' in meal
