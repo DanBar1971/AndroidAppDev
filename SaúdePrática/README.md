@@ -43,7 +43,7 @@ Desde a versão **v1.9.77**, as Releases podem ser publicadas automaticamente pe
 - Faturas mensais, acompanhamento manual da ADSE e documentos PDF/fotografias em Documentos Digitais.
 - Requisitos completos em [Módulo Lares](./MODULO_LARES_APOIO_TERCEIRA_IDADE.md).
 
-**Release atual:** [v1.9.92](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.92) — Fase B: recuperação de alarmes e adiamentos após reinício, atualização, alterações de hora/fuso ou da permissão para alarmes exatos; grupos preservados e registos individuais por perfil/medicamento/hora original. Ícone, splash e background oficiais verificados. APK assinada com certificado original; SHA-256 `137a0121e91244353c47a1c998820d56e1bd839222bf7ee4e8bf1b194d8562d0`. Testes reais Android/HyperOS e sincronização familiar continuam recomendados.
+**Release atual:** [v1.9.93](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.93) — Fase C: reconhecimento Gemini corrigível por texto com reanálise da fotografia, revisão de ingredientes/gramas/kcal/macros, Open Food Facts API v3 com leitura EAN/UPC ou introdução manual, histórico nutricional de 7/30 dias e fotografia privada por perfil. Preserva recursos gráficos oficiais e Fases A/B. APK assinada com certificado original, SHA-256 `61ae9e74774604d5431f0cdbf2019065afc6933c26ef93bce446414be86cdde0`. A fotografia é JPEG otimizado, não um ficheiro original sem compressão; valores nutricionais são estimativas. Testes reais de câmera/HyperOS e Gemini continuam recomendados.
 
 ## Novidades v1.9.80
 
