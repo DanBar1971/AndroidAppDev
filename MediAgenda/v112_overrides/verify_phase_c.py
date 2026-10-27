@@ -19,7 +19,7 @@ assert "https://world.openfoodfacts.org/api/v3/product/" in barcode
 assert 'setRequestProperty("User-Agent"' in barcode
 assert "profile" not in barcode.lower().replace("profile or medical records","")
 assert "fun summary(items:JSONArray,days:Int)" in history
-assert any("versionCode = "+str(v) in gradle for v in (103,104)) and any('versionName = "'+v+'"' in gradle for v in ("1.9.93","1.9.94"))
+assert any("versionCode = "+str(v) in gradle for v in (103,104,105)) and any('versionName = "'+v+'"' in gradle for v in ("1.9.93","1.9.94","1.9.95"))
 assert 'play-services-code-scanner:16.1.0' in gradle
 for n in ("saude_icon.png","saude_splash.png","saude_background.png"):
     f=p/"app/src/main/res/drawable-nodpi"/n
