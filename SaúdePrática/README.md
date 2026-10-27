@@ -43,7 +43,7 @@ Desde a versão **v1.9.77**, as Releases podem ser publicadas automaticamente pe
 - Faturas mensais, acompanhamento manual da ADSE e documentos PDF/fotografias em Documentos Digitais.
 - Requisitos completos em [Módulo Lares](./MODULO_LARES_APOIO_TERCEIRA_IDADE.md).
 
-**Release atual:** [v1.9.94](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.94) — Fase D: arquivo automático de originais PDF/imagens para Documentos Digitais nos fluxos de medicação, agenda, análises e saúde ocupacional; deduplicação SHA-256 por perfil; partilha múltipla de até 20 ficheiros; pesquisa local offline de unidades por nome, distrito, concelho e GPS opcional, com novas unidades guardadas no catálogo. Conserva visualizador PDF e OCR, Fases A–C e as três imagens oficiais. APK assinada com o certificado anterior. SHA-256: `26546efd24a3b595db0d3d13d2e709906a240fe7cfc2fb93d49f6c43b259ab77`. Testes em telemóvel real continuam recomendados.
+**Release atual:** [v1.9.95](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.95) — Nutrição simplificada: Gemini API e teste visíveis antes de fotografia; ligação ao Google AI Studio; aviso de chave por configurar; elimina fallback silencioso para serviço central de IA; progresso persistente e erros explícitos; reconhecimento offline apenas opcional; plano alimentar secundário com dados preservados. Fotos e histórico por perfil, código de barras, Fases A-D, ícone/splash/background originais e assinatura Android mantidos. SHA-256 APK: `9ec07fce4d01bf4108221b49c51be4eede7d91758d1897cfd3ed7a3dd9f20039`. Falta testar Gemini com chave real em telemóvel Android/HyperOS.
 
 ## Novidades v1.9.80
 
