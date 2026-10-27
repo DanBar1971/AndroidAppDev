@@ -43,7 +43,7 @@ Desde a versão **v1.9.77**, as Releases podem ser publicadas automaticamente pe
 - Faturas mensais, acompanhamento manual da ADSE e documentos PDF/fotografias em Documentos Digitais.
 - Requisitos completos em [Módulo Lares](./MODULO_LARES_APOIO_TERCEIRA_IDADE.md).
 
-**Release atual:** [v1.9.90](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.90) — Manter o dedo 3 s na fotografia/nome do perfil abre a edição; SOS fica amarelo enquanto pressionado e apresenta a contagem de 4 s até à chamada do contacto do perfil. Mantidos DownloadManager, alertas, cuidador e dados clínicos. APK assinada com o certificado original e publicada em Releases. SHA-256: `cdef41cc2c71f8b778268dd90e9aea02184b22c48291df3c23fdf6703d76dc46`. Testes em Android/HyperOS real ainda recomendados.
+**Release atual:** [v1.9.91](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.91) — Fase A: identidade persistente por dispositivo e ID de origem na sincronização Nearby, impedindo fusão automática por nome. Ícone, splash e background originais verificados; assinatura Android original. APK SHA-256: `4dd9e4abc92f2199c03a624829104c36b5c498659856aa813e4bdb4710513db4`. Testes funcionais com dois telemóveis e alarmes HyperOS continuam necessários. Perfis duplicados anteriores não são unidos nem apagados automaticamente.
 
 ## Novidades v1.9.80
 
