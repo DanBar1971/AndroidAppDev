@@ -6,10 +6,17 @@ import org.json.JSONObject
 import java.time.Instant
 
 /** A manual weight is never sent to a third party and belongs to exactly one patient. */
-class BodyMeasurements(context:Context,profile:String){
+class BodyMeasurements(private val context:Context,private val profile:String){
     private val prefs=context.getSharedPreferences("saudepratica_body_$profile",Context.MODE_PRIVATE)
     init{ require(profile=="legacy" || Regex("[a-fA-F0-9-]{36}").matches(profile)) }
-    fun heightCm():Double=prefs.getFloat("height_cm",0f).toDouble()
+    fun heightCm():Double {
+        val own=prefs.getFloat("height_cm",0f).toDouble()
+        if(own>0.0)return own
+        // Use height already stored in this patient's profile.
+        val raw=context.getSharedPreferences(ProfileStore(context).preferencesFor(profile),
+            Context.MODE_PRIVATE).getString("height_cm","").orEmpty()
+        return raw.replace(',','.').toDoubleOrNull()?.takeIf{it in 90.0..230.0}?:0.0
+    }
     fun setHeight(cm:Double){require(cm in 90.0..230.0);check(prefs.edit().putFloat("height_cm",cm.toFloat()).commit())}
     fun addWeight(kg:Double){
         require(kg in 20.0..350.0){"Indica um peso entre 20 e 350 kg."}
