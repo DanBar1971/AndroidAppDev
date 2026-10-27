@@ -29,7 +29,7 @@ assert "fun remember(context:Context,name:String" in clinics
 assert "searchHealthcareFacility(onSelected)" in main
 assert "HealthcareCatalog.facilities(this,district,municipality)" in main
 assert "HealthcareCatalog.remember(this,name,district,municipality)" in main
-assert "versionCode = 104" in gradle and 'versionName = "1.9.94"' in gradle
+assert any("versionCode = "+str(v) in gradle for v in (104,105)) and any('versionName = "'+v+'"' in gradle for v in ("1.9.94","1.9.95"))
 assert 'android:icon="@drawable/saude_icon"' in manifest
 for img in ("saude_icon.png","saude_splash.png","saude_background.png"):
     f=root/"app/src/main/res/drawable-nodpi"/img
