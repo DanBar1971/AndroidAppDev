@@ -208,8 +208,8 @@ jobs:
             exit 1
           fi
           if gh release view v1.9.88 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "Release already exists; refusing to overwrite."
-            exit 0
+            echo "::error::Release already exists; verify published APK manually rather than silently succeeding."
+            exit 1
           fi
           cp SaudePratica-v1.9.88-SIGNED.apk SaudePratica.apk
           gh release create v1.9.88 SaudePratica.apk \
@@ -218,3 +218,13 @@ jobs:
             --notes "Atualização da app via PackageInstaller; alarme em tarefa própria no bloqueio, perfil do dispositivo, avisos familiares sem alarme forte, revisão individual das tomas agrupadas, opção Sem alarme e ocultação segura de cartões repetidos de perfis recebidos. Não elimina nem funde dados clínicos. Corrigir associações entre perfis recebidos continua a exigir revisão e confirmação." \
             --latest
           gh release view v1.9.88 --repo "$GITHUB_REPOSITORY"
+          gh release view v1.9.88 --repo "$GITHUB_REPOSITORY" --json tagName,assets \
+            | jq -e '.tagName=="v1.9.88" and any(.assets[]; .name=="SaudePratica.apk")'
+          curl -fL --retry 4 --retry-all-errors --connect-timeout 20 \
+            "https://github.com/$GITHUB_REPOSITORY/releases/latest/download/SaudePratica.apk" \
+            -o "$RUNNER_TEMP/published-latest.apk"
+          cmp -s SaudePratica.apk "$RUNNER_TEMP/published-latest.apk" || {
+            echo "::error::Published Latest APK differs from the built signed APK."
+            exit 1
+          }
+          echo "v1.9.88 published, signed APK verified and latest URL checked."
