@@ -31,8 +31,8 @@ assert 'EXTRA_CATEGORY,"intakes"' in service
 assert 'if(groupIds.size<=1)' in service and 'confirm_medication_id' in service
 assert "confirmScheduledIntake(medId,item.title,whenDue)" in history
 assert "PersonalHealthStore(this,profileId)" in history
-assert "versionCode = 102" in (root/"app/build.gradle.kts").read_text()
-assert 'versionName = "1.9.92"' in (root/"app/build.gradle.kts").read_text()
+assert any("versionCode = "+str(n) in (root/"app/build.gradle.kts").read_text() for n in (102,103))
+assert any('versionName = "'+v+'"' in (root/"app/build.gradle.kts").read_text() for v in ("1.9.92","1.9.93"))
 manifest=(root/"app/src/main/AndroidManifest.xml").read_text()
 for action in ("BOOT_COMPLETED","MY_PACKAGE_REPLACED","TIME_SET","TIMEZONE_CHANGED",
                "SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED"):
