@@ -43,7 +43,7 @@ Desde a versão **v1.9.77**, as Releases podem ser publicadas automaticamente pe
 - Faturas mensais, acompanhamento manual da ADSE e documentos PDF/fotografias em Documentos Digitais.
 - Requisitos completos em [Módulo Lares](./MODULO_LARES_APOIO_TERCEIRA_IDADE.md).
 
-**Release atual:** [v1.9.91](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.91) — Fase A: identidade persistente por dispositivo e ID de origem na sincronização Nearby, impedindo fusão automática por nome. Ícone, splash e background originais verificados; assinatura Android original. APK SHA-256: `4dd9e4abc92f2199c03a624829104c36b5c498659856aa813e4bdb4710513db4`. Testes funcionais com dois telemóveis e alarmes HyperOS continuam necessários. Perfis duplicados anteriores não são unidos nem apagados automaticamente.
+**Release atual:** [v1.9.92](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.92) — Fase B: recuperação de alarmes e adiamentos após reinício, atualização, alterações de hora/fuso ou da permissão para alarmes exatos; grupos preservados e registos individuais por perfil/medicamento/hora original. Ícone, splash e background oficiais verificados. APK assinada com certificado original; SHA-256 `137a0121e91244353c47a1c998820d56e1bd839222bf7ee4e8bf1b194d8562d0`. Testes reais Android/HyperOS e sincronização familiar continuam recomendados.
 
 ## Novidades v1.9.80
 
