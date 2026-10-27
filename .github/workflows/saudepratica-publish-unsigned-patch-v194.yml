@@ -1,0 +1,109 @@
+name: Publicar SaudePratica v1.9.94 APK assinada - Fase D documentos e agenda
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'SaúdePrática/release-unsigned-patches/v1.9.94/manifest.json'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: saudepratica-release-v1-9-94
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout signed patch
+        uses: actions/checkout@v4
+
+      - name: Verify manifest and download unsigned artifact from exact workflow run
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          DIR='SaúdePrática/release-unsigned-patches/v1.9.94'
+          jq -e '.tag=="v1.9.94" and .asset=="SaudePratica.apk" and
+            .unsigned_run_id==40496388505 and
+            .unsigned_artifact=="SaudePratica-v1.9.94-UNSIGNED" and
+            .base_tag=="v1.9.93" and
+            (.unsigned_sha256|test("^[0-9a-f]{64}$")) and
+            (.apk_sha256|test("^[0-9a-f]{64}$")) and
+            (.delta_sha256|test("^[0-9a-f]{64}$"))
+          ' "$DIR/manifest.json"
+          test -s "$DIR/release-notes.md"
+          if gh release view v1.9.94 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::Release already published; refusing to overwrite."
+            exit 1
+          fi
+          mkdir -p unsigned
+          gh run download 40496388505 --repo "$GITHUB_REPOSITORY" \
+            --name 'SaudePratica-v1.9.94-UNSIGNED' --dir unsigned
+          test "$(find unsigned -name '*.apk' -type f | wc -l)" -eq 1
+          cp "$(find unsigned -name '*.apk' -type f | head -n1)" unsigned.apk
+          echo "$(jq -r .unsigned_sha256 "$DIR/manifest.json")  unsigned.apk" | sha256sum -c
+
+      - name: Rebuild EXACT signed APK from verified unsigned artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          DIR='SaúdePrática/release-unsigned-patches/v1.9.94'
+          test -s "$DIR/delta.part00.b64"
+          cat "$DIR"/delta.part*.b64 | base64 --decode > patch.zst
+          echo "$(jq -r .delta_sha256 "$DIR/manifest.json")  patch.zst" | sha256sum -c
+          zstd --decompress --long=28 --patch-from=unsigned.apk patch.zst -o SaudePratica.apk
+          echo "$(jq -r .apk_sha256 "$DIR/manifest.json")  SaudePratica.apk" | sha256sum -c
+
+      - name: Verify Android signatures and original identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | head -n1)"
+          fi
+          "$SDKMANAGER" 'build-tools;35.0.0' >/dev/null
+          SIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          "$SIGNER" verify --verbose SaudePratica.apk
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt2"
+          PKG="$("$AAPT" dump badging SaudePratica.apk | head -n1)"
+          echo "$PKG"
+          echo "$PKG" | grep -F "name='com.mediagenda.app.stable'"
+          echo "$PKG" | grep -F "versionName='1.9.94'"
+          curl -fL --retry 5 --retry-all-errors --connect-timeout 25 \
+            "https://github.com/$GITHUB_REPOSITORY/releases/download/v1.9.93/SaudePratica.apk" \
+            -o prior.apk
+          "$SIGNER" verify --verbose prior.apk
+          PREVIOUS="$("$SIGNER" verify --print-certs prior.apk |
+            grep 'Signer #1 certificate SHA-256 digest:' | head -n1 | awk '{print $NF}')"
+          CURRENT="$("$SIGNER" verify --print-certs SaudePratica.apk |
+            grep 'Signer #1 certificate SHA-256 digest:' | head -n1 | awk '{print $NF}')"
+          test -n "$PREVIOUS" && test "$CURRENT" = "$PREVIOUS" || {
+            echo "::error::Android signer certificate is not compatible"; exit 1;
+          }
+
+      - name: Publish GitHub Release with final APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          DIR='SaúdePrática/release-unsigned-patches/v1.9.94'
+          gh release create v1.9.94 SaudePratica.apk \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "SaúdePrática v1.9.94 — Fase D: documentos e agenda" \
+            --notes-file "$DIR/release-notes.md" --latest
+          gh release view v1.9.94 --repo "$GITHUB_REPOSITORY" \
+            --json tagName,assets,isDraft,isPrerelease |
+            jq -e '.tagName=="v1.9.94" and (.isDraft|not) and (.isPrerelease|not)
+              and any(.assets[]; .name=="SaudePratica.apk")'
+          curl -fL --retry 5 --retry-all-errors --connect-timeout 25 \
+            "https://github.com/$GITHUB_REPOSITORY/releases/latest/download/SaudePratica.apk" \
+            -o latest.apk
+          cmp SaudePratica.apk latest.apk
+          echo "SIGNED APK PUBLISHED, SHA CHECKED, LATEST VERIFIED."
