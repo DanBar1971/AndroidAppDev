@@ -182,6 +182,39 @@ change("MainActivity.kt",
                 }''',
 "clear stored times if alarm disabled")
 
+# Suppress only identical caregiver display cards from imported shadow profiles
+# when the genuine local patient with the same name and same dose exists.
+# Do NOT delete, merge or modify any underlying clinical records or profile IDs.
+change("HealthRecordsActivity.kt",
+'''            val familyOverdue=otherProfiles.flatMap{person->
+                runCatching{PersonalHealthStore(this,person.id).overdueIntakes()
+                    .map{person to it}}.getOrDefault(emptyList())
+            }.sortedBy{it.second.fields["scheduled_at"]?.toLongOrNull()?:it.second.timestamp}''',
+'''            val rawFamilyOverdue=otherProfiles.flatMap{person->
+                runCatching{PersonalHealthStore(this,person.id).overdueIntakes()
+                    .map{person to it}}.getOrDefault(emptyList())
+            }.sortedBy{it.second.fields["scheduled_at"]?.toLongOrNull()?:it.second.timestamp}
+            val canonical=rawFamilyOverdue.filter{
+                !it.first.name.contains(" (recebido de ")
+            }.map{(person,item)->
+                person.name.trim().lowercase()+"|"+item.title.trim().lowercase()+
+                    "|"+(item.fields["scheduled_at"]?.toLongOrNull()?:item.timestamp)
+            }.toSet()
+            val familyOverdue=rawFamilyOverdue.filter{(person,item)->
+                val fromSync=person.name.contains(" (recebido de ")
+                val key=person.name.substringBefore(" (recebido de ")
+                    .trim().lowercase()+"|"+item.title.trim().lowercase()+
+                    "|"+(item.fields["scheduled_at"]?.toLongOrNull()?:item.timestamp)
+                !fromSync || key !in canonical
+            }
+            if(rawFamilyOverdue.size>familyOverdue.size)
+                body.addView(label("ℹ️ "+
+                    (rawFamilyOverdue.size-familyOverdue.size)+
+                    " aviso(s) repetido(s) de perfis recebidos por sincronização "+
+                    "foram ocultados nesta lista. Os registos originais continuam "+
+                    "guardados até associares os perfis com segurança.",12f,color=muted))''',
+"hide only exact repeated synced cards, preserve all data")
+
 # Ensure alarm UI launches as an independent lockscreen task, never behind
 # MainActivity's application PIN/login task.
 manifest=root/"app/src/main/AndroidManifest.xml"
