@@ -62,7 +62,7 @@
         fun editField(title:String,initial:Double):EditText{
             return input(title,String.format(Locale.US,"%.1f",initial),true).apply {
                 textSize=16f
-                selectAllOnFocus=true
+                setSelectAllOnFocus(true)
                 addTextChangedListener(object:TextWatcher{
                     override fun beforeTextChanged(s:CharSequence?,start:Int,count:Int,after:Int){}
                     override fun onTextChanged(s:CharSequence?,start:Int,before:Int,count:Int){
@@ -75,7 +75,7 @@
         fun addIngredient(item:JSONObject){
             val card=LinearLayout(this).apply{
                 orientation=LinearLayout.VERTICAL
-                background=GradientDrawable().apply{
+                this.background=GradientDrawable().apply{
                     setColor(cardColor)
                     cornerRadius=dp(16).toFloat()
                     setStroke(dp(1),if(isDark)Color.rgb(64,85,96) else Color.rgb(214,229,230))
