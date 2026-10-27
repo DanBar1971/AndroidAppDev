@@ -46,3 +46,11 @@ Estas entradas sugerem perfis clonados na sincronização. Auditar a importaçã
 - Atualizar `versionCode`/`versionName`, documentar changelog.
 - Compilar, verificar APK, assinar com certificado original, publicar GitHub Release contendo `SaudePratica.apk`, confirmar tag Latest e ligação funcional.
 - Se qualquer etapa falhar, informar exatamente o que ficou pendente e não declarar versão concluída.
+
+## Estado de implementação (27-10-2026)
+
+- **Código preparado (sem validação de compilação nem APK confirmada):** patches `MediAgenda/v107_overrides/DeviceAlarmRouting.kt` e `apply_v107.py`. Workflow atualizado para **v1.9.88**.
+- Foram preparados: seleção do utente associado ao telemóvel, notificação normal dos outros perfis, actividade do alarme em tarefa independente, registo individual de pendências ao tocar «TOMEI» em grupo, opção «Sem alarme» no editor, e ocultação na lista do cuidador apenas das entradas recebidas com mesma pessoa/nome de origem, medicamento e instante que o perfil principal.
+- **Ainda pendente de teste real:** permissão de ecrã completo e comportamento HyperOS com PIN/lockscreen, alarmes nos dias seguintes após retirar horário, agrupamento/snooze, fluxos do cuidador, sintomas de clonagem na sincronização, e validação do APK assinado.
+- **A fusão/associação permanente das cópias «Regina (recebido de...)» NÃO foi implementada**, para não misturar identidades e dados clínicos indevidamente. Os perfis e registos não foram eliminados. Deduplicação introduzida é só visual e só para avisos coincidentes com o perfil principal.
+- **Release pública v1.9.88 não confirmada**: Git tag v1.9.88 ainda não estava acessível no último teste. Verificar Actions e publicação final antes de informar conclusão.
