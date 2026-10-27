@@ -43,7 +43,7 @@ Desde a versão **v1.9.77**, as Releases podem ser publicadas automaticamente pe
 - Faturas mensais, acompanhamento manual da ADSE e documentos PDF/fotografias em Documentos Digitais.
 - Requisitos completos em [Módulo Lares](./MODULO_LARES_APOIO_TERCEIRA_IDADE.md).
 
-**Release atual:** [v1.9.88](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.88) — Correções para alarmes, perfil associado ao telemóvel, tomas agrupadas e notificações do cuidador. APK assinada com o certificado original; compilação, validação e publicação confirmadas no GitHub Actions. SHA-256: `e17b1476d376d0b8bb746c70fde9e6f88759b74bba18eafb8ba6ec4d7fea6de9`. Testes em Android/HyperOS real ainda recomendados.
+**Release atual:** [v1.9.89](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.89) — Novo DownloadManager: descarga persistente com progresso no Android e APK acessível em Ficheiros → Downloads. Mantidas as melhorias de alarmes, perfil associado ao telemóvel, tomas agrupadas e cuidador. APK assinada com o certificado original. SHA-256: `0e6e2cfa9a97de0cd35a26d055b211800748e7b136ca028f822c96775f150161`. Testes em Android/HyperOS real ainda recomendados.
 
 ## Novidades v1.9.80
 
