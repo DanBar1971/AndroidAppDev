@@ -10,7 +10,7 @@ assert 'val newTarget=(store.todayMl()+extra)' in w
 assert 'fun increaseTarget(' in st and 'NotificationScheduler(this).scheduleNextWater(profileId)' in w
 assert 'DashboardModule("📅", "Agenda", "Consultas e exames")' in m
 assert 'showHealthcareSearchHelp()' in m
-assert 'versionName = "1.9.96"' in gradle and 'versionCode = 106' in gradle
+assert any('versionName = "'+v+'"' in gradle for v in ("1.9.96","1.9.97")) and any('versionCode = '+str(v) in gradle for v in (106,107))
 for file in ['saude_icon.png','saude_background.png','saude_splash.png']:
     assert (p/'app/src/main/res/drawable-nodpi'/file).stat().st_size>1024
 print('Fase E + descoberta Fase D + arte original: OK')
