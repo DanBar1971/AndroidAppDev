@@ -66,7 +66,7 @@ extra='''    /** Each reading is displayed only when its specific permission was
         val breath=cell("🌬 Respiração")
         val temperature=cell("🌡 Temperatura")
         fun show(view:TextView,permission:String,formatter:()->Unit){
-            if(!allowed(permission))view.text=view.text.substringBefore(':')+": sem permissão"
+            if(!allowed(permission))view.text=view.text.toString().substringBefore(':')+": sem permissão"
             else formatter()
         }
         show(oxygen,HealthPermissions.READ_OXYGEN_SATURATION){
@@ -83,7 +83,7 @@ extra='''    /** Each reading is displayed only when its specific permission was
                 if(generation==requestGeneration)weight.text=when{
                     error!=null->"⚖ Peso: erro ao consultar"
                     r==null->"⚖ Peso: sem registos partilhados"
-                    else->String.format(Locale("pt","PT"),"⚖ Peso: %.1f kg",r.weight.inKilograms)
+                    else->String.format(Locale("pt","PT"),"⚖ Peso: %.1f kg",r.weight.inGrams / 1000.0)
                 }
             }
         }
@@ -221,7 +221,7 @@ patch('ActivityHealthConnect.kt','''        querySeries(3, HealthPermissions.REA
         querySeries(4, HealthPermissions.READ_HEART_RATE, HeartRateRecord.BPM_AVG,
             { it.toDouble() })
         querySeries(5, HealthPermissions.READ_WEIGHT, WeightRecord.WEIGHT_AVG,
-            { it.inKilograms })''','weekly queries')
+            { it.inGrams / 1000.0 })''','weekly queries')
 
 # Write new patient-isolated local measurements class.
 (b/'data/BodyMeasurements.kt').write_text((source/'BodyMeasurements.kt').read_text(),encoding='utf-8')
