@@ -180,6 +180,7 @@ jobs:
           path: android-signing-tools.tar.gz
           retention-days: 2
       - uses: actions/upload-artifact@v4
+        if: success() || failure()
         with:
           name: SaudePratica-v1.9.88-UNSIGNED
           path: build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk
