@@ -1,6 +1,6 @@
 # SaúdePrática v1.9.88 — notas de implementação (aguarda validação)
 
-**Estado:** correções preparadas em código. A compilação, APK assinada, ensaio no Android real e GitHub Release ainda **não foram confirmados**.
+**Estado de publicação:** APK compilada, assinada com o certificado original, verificada e publicada na [Release pública v1.9.88](https://github.com/DanBar1971/AndroidAppDev/releases/tag/v1.9.88) em 27-10-2026. **Testes no Android real continuam necessários.**
 
 - **Alarme no ecrã bloqueado:** separada a tarefa visual do alarme da tarefa da aplicação/PIN. Android 14+/HyperOS continua a exigir autorização de ecrã completo e pode aplicar limitações.
 - **Perfil associado ao telemóvel:** seleção explícita por ID estável dentro da ficha de perfil. O perfil cuidador é usado como preferência de compatibilidade quando não há escolha explícita.
