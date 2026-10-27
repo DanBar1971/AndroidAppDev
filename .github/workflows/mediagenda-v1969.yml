@@ -169,6 +169,7 @@ jobs:
           path: build-src/MediAgenda_Android_v1/
           retention-days: 7
       - name: Export Android signing tools (no certificates or passwords)
+        if: success() || failure()
         run: |
           mkdir -p android-signing-tools
           cp "$ANDROID_HOME/build-tools/35.0.0/apksigner" android-signing-tools/
