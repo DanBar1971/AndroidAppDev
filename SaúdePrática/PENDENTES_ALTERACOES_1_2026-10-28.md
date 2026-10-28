@@ -16,7 +16,7 @@
 
 ## Questões ainda a verificar por testes Android reais
 - Tradução integral dos módulos e botões em PT/EN/FR/DE/ES; entradas introduzidas pelas pessoas não são traduzidas automaticamente.
-- Auditoria visual dos restantes ecrãs sem `saude_background`; alguns podem herdar imagem/tema, pelo que é preciso revisão visual, sem aplicar o fundo indiscriminadamente.
+- Auditoria visual automática v1.9.105: o código sinalizou `DocumentOrientationActivity`, `HealthPermissionsRationaleActivity`, `MedicationBoxCameraActivity`, `ProfileWizardActivity`, `SmartHelpActivity`, `SplashActivity` e `SupportHelpActivity` sem referência direta a `saude_background`. **É preciso confirmar visualmente** os quatro ecrãs de perfil/ajuda/permissões: podem não ter o fundo. Os ecrãs de câmara, visualizador de documentos e splash devem manter a apresentação própria e não receber o fundo indiscriminadamente.
 - Alarme em ecrã bloqueado, confirmação individual de vários medicamentos, adiamento, PIN e associação dos alarmes ao perfil correto.
 - Atualização por download e abertura do instalador do Android em Xiaomi/HyperOS; testar sem desinstalar.
 - Reconhecimento real de refeições, correção manual e conservação das fotografias.
