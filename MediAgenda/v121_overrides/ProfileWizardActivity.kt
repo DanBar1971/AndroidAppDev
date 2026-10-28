@@ -107,7 +107,7 @@ class ProfileWizardActivity:AppCompatActivity(){
         root.addView(top)
         progress=TextView(this).apply{textSize=13f;setTextColor(Color.rgb(113,227,206))}
         root.addView(progress)
-        val scroll=ScrollView(this).apply{fillViewport=true;isVerticalScrollBarEnabled=true}
+        val scroll=ScrollView(this).apply{isFillViewport=true;isVerticalScrollBarEnabled=true}
         body=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL;setPadding(0,dp(16),0,dp(12))}
         scroll.addView(body)
         root.addView(scroll,LinearLayout.LayoutParams(-1,0,1f))
