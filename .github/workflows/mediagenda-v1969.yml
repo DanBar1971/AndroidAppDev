@@ -1,4 +1,4 @@
-name: SaudePratica v1.9.101 Android Build
+name: SaudePratica v1.9.102 Android Build
 on:
   push:
     branches: [master]
@@ -38,6 +38,7 @@ on:
       - "MediAgenda/v118_overrides/**"
       - "MediAgenda/v119_overrides/**"
       - "MediAgenda/v120_overrides/**"
+      - "MediAgenda/v121_overrides/**"
   pull_request:
     branches: [master]
     paths:
@@ -75,6 +76,7 @@ on:
       - "MediAgenda/v118_overrides/**"
       - "MediAgenda/v119_overrides/**"
       - "MediAgenda/v120_overrides/**"
+      - "MediAgenda/v121_overrides/**"
   workflow_dispatch:
 permissions:
   contents: write
@@ -177,9 +179,13 @@ jobs:
         run: python3 MediAgenda/v120_overrides/apply_v120.py
       - name: Verify v1.9.101 medication document persistence and illustrations
         run: python3 MediAgenda/v120_overrides/verify_v120.py
+      - name: Apply v1.9.102 guided profile and clinical data editor
+        run: python3 MediAgenda/v121_overrides/apply_v121.py
+      - name: Verify v1.9.102 profile wizard, photos and clinical identifiers
+        run: python3 MediAgenda/v121_overrides/verify_v121.py
       - name: Require original app artwork (background, icon and splash)
         run: python3 MediAgenda/tools/verify_graphics.py
-      - name: Compile Android 1.9.101
+      - name: Compile Android 1.9.102
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleRelease
       - name: Check branded graphics exist inside compiled APK
@@ -201,13 +207,13 @@ jobs:
           BADGING="$("$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk | head -n 1)"
           echo "$BADGING"
           echo "$BADGING" | grep -F "name='com.mediagenda.app.stable'"
-          echo "$BADGING" | grep -F "versionCode='111'"
-          echo "$BADGING" | grep -F "versionName='1.9.101'"
-          grep -F 'versionCode = 111' build-src/MediAgenda_Android_v1/app/build.gradle.kts
-          grep -F 'versionName = "1.9.101"' build-src/MediAgenda_Android_v1/app/build.gradle.kts
+          echo "$BADGING" | grep -F "versionCode='112'"
+          echo "$BADGING" | grep -F "versionName='1.9.102'"
+          grep -F 'versionCode = 112' build-src/MediAgenda_Android_v1/app/build.gradle.kts
+          grep -F 'versionName = "1.9.102"' build-src/MediAgenda_Android_v1/app/build.gradle.kts
       - uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.101-FULL-SOURCE
+          name: SaudePratica-v1.9.102-FULL-SOURCE
           path: build-src/MediAgenda_Android_v1/
           retention-days: 7
       - name: Export Android signing tools (no certificates or passwords)
@@ -225,7 +231,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: success() || failure()
         with:
-          name: SaudePratica-v1.9.101-UNSIGNED
+          name: SaudePratica-v1.9.102-UNSIGNED
           path: build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk
           retention-days: 7
 
