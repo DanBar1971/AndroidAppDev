@@ -43,3 +43,11 @@
 - Se qualquer passo de publicação falhar ou estiver indisponível, **não afirmar que a versão foi lançada**: informar explicitamente que está pendente e qual o bloqueio, sem passar a outro trabalho como se estivesse terminada.
 - A v1.9.87 (correção do instalador Android PackageInstaller.Session) deve seguir esta checklist; verificar a publicação antes de anunciá-la.
 - Esta instrução é permanente, aplicável a todos os chats futuros do projeto Android Apps/SaúdePrática, sem necessidade de o utilizador repetir o pedido.
+
+
+## Regra permanente: sincronização do website de downloads (28-10-2026)
+- **Cada nova GitHub Release de SaúdePrática obriga a confirmar e atualizar também a página** https://danbar1971.github.io/SaudePratica/ (repositório separado: https://github.com/DanBar1971/SaudePratica, branch main).
+- O website usa JavaScript em `script.js` para obter a tag e o asset `SaudePratica.apk` diretamente de `DanBar1971/AndroidAppDev/releases/latest` a cada visita. A ligação estática para download deve ser a rota permanente `releases/latest/download/SaudePratica.apk`, nunca uma versão antiga fixa.
+- Após publicar uma release: verificar `releases/latest`, confirmar que a API devolve o asset `SaudePratica.apk` assinado e **verificar também a página pública** e o link de download, sem anunciar atualização completa antes disso.
+- Se forem alteradas etiquetas, capturas, changelog ou a apresentação da versão no website, publicar também o repositório `DanBar1971/SaudePratica` e confirmar o sucesso do workflow `Publicar website SaúdePrática`.
+- Se houver limites de API do GitHub, o website não deve mostrar um número de versão fixo antigo; deve apresentar `mais recente` com o link permanente até a consulta voltar a funcionar.
