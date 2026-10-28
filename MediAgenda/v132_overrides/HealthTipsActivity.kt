@@ -72,7 +72,7 @@ class HealthTipsActivity : AppCompatActivity() {
         header.addView(title("💡 Dicas e Informações",19f,true),
             LinearLayout.LayoutParams(0,-2,1f))
         outer.addView(header)
-        val scroll=ScrollView(this).apply{fillViewport=true}
+        val scroll=ScrollView(this).apply{isFillViewport=true}
         body=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
             setPadding(dp(14),dp(9),dp(14),dp(26))
