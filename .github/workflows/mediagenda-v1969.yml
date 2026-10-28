@@ -1,4 +1,4 @@
-name: SaudePratica v1.9.108 Android Build
+name: SaudePratica Android Build + AutoRelease
 on:
   push:
     branches: [master]
@@ -46,6 +46,9 @@ on:
       - "MediAgenda/v126_overrides/**"
       - "MediAgenda/v127_overrides/**"
       - "MediAgenda/v128_overrides/**"
+      - "MediAgenda/tools/sign_release.py"
+      - "MediAgenda/tools/publish_release.sh"
+      - "MediAgenda/tools/README-AUTO-RELEASE.md"
   pull_request:
     branches: [master]
     paths:
@@ -89,12 +92,15 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -241,15 +247,26 @@ jobs:
               raise SystemExit("App artwork missing from APK; blocking this release: "+repr(branded))
           print("Branded graphics packaged:",branded)
           PY
-      - name: Check output version
+      - name: Check version and stable app identity
         run: |
-          BADGING="$("$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk | head -n 1)"
-          echo "$BADGING"
-          echo "$BADGING" | grep -F "name='com.mediagenda.app.stable'"
-          echo "$BADGING" | grep -F "versionCode='118'"
-          echo "$BADGING" | grep -F "versionName='1.9.108'"
-          grep -F 'versionCode = 118' build-src/MediAgenda_Android_v1/app/build.gradle.kts
-          grep -F 'versionName = "1.9.108"' build-src/MediAgenda_Android_v1/app/build.gradle.kts
+          python3 - <<'PY'
+          import pathlib,re,subprocess
+          file='build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk'
+          p=subprocess.run([pathlib.Path(__import__('os').environ['ANDROID_HOME'])/'build-tools/35.0.0/aapt2','dump','badging',file],capture_output=True,text=True,check=True)
+          first=p.stdout.splitlines()[0]
+          gradle=pathlib.Path('build-src/MediAgenda_Android_v1/app/build.gradle.kts').read_text()
+          pkg=re.search(r"name='([^']+)'",first)
+          vn=re.search(r"versionName='([^']+)'",first)
+          vc=re.search(r"versionCode='([^']+)'",first)
+          ver=re.search(r'versionName\s*=\s*"([^"]+)"',gradle)
+          code=re.search(r'versionCode\s*=\s*(\d+)',gradle)
+          assert pkg and pkg.group(1)=='com.mediagenda.app.stable',first
+          assert vn and re.fullmatch(r'\d+\.\d+\.\d+',vn.group(1)),first
+          assert vc and vc.group(1).isdigit(),first
+          assert ver and ver.group(1)==vn.group(1),first
+          assert code and code.group(1)==vc.group(1),first
+          print(f'IDENTITY OK: {pkg.group(1)}, version {vn.group(1)}, code {vc.group(1)}')
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: SaudePratica-v1.9.108-FULL-SOURCE
@@ -273,4 +290,21 @@ jobs:
           name: SaudePratica-v1.9.108-UNSIGNED
           path: build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk
           retention-days: 7
+      - name: Install audited AES-GCM recovery dependency (trusted master only)
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        run: python3 -m pip install --quiet 'cryptography>=42,<50'
+      - name: Sign release with original SaúdePrática certificate
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        id: original_signing
+        env:
+          SAUDEPRACTICA_SIGNING_RECOVERY_HEX: ${{ secrets.SAUDEPRACTICA_SIGNING_RECOVERY_HEX }}
+        run: python3 MediAgenda/tools/sign_release.py
+      - name: Publish signed APK and redeploy official website
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SP_TAG: ${{ steps.original_signing.outputs.tag }}
+          SP_CODE: ${{ steps.original_signing.outputs.version_code }}
+          SP_SHA: ${{ steps.original_signing.outputs.sha256 }}
+        run: bash MediAgenda/tools/publish_release.sh "$SP_TAG" "$SP_CODE" "$SP_SHA"
 
