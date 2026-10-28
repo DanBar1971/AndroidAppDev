@@ -17,3 +17,8 @@ The signed-delta publication method was used successfully for **v1.9.77, v1.9.78
 - Restore `saude_background.png`, `saude_icon.png` and `saude_splash.png` using `MediAgenda/v98_overrides/branding/*.png.b64` and the v98 build patch. Assets were provided by the project owner; never request them again without first checking repository and Project/Library.
 - Before every Release, run `MediAgenda/tools/verify_graphics.py`, verify the three branded PNGs are inside the **compiled APK**, and check original signing certificate. Do not publish a build with placeholder graphics.
 - Latest verified published release: v1.9.80 (26 Oct 2026); fixed asset `SaudePratica.apk`.
+
+## Regra permanente — imagens fiéis à app (28/10/2026)
+- **NUNCA criar mockups com ecrãs fictícios da SaúdePrática**: as imagens que mostram um telemóvel têm de reproduzir a interface Android real, com capturas originais aprovadas. Se não existirem capturas fiáveis, usar cartazes sem ecrãs/telemóveis ilustrados.
+- No módulo `Opções → Dicas e Informações` os cartazes 9:16 remotos ocupam quase toda a janela, sem título, e têm apenas botões Android no rodapé. O histórico fica guardado localmente no telemóvel e disponível para consulta posterior.
+- Conteúdo remoto público em https://github.com/DanBar1971/SaudePratica/tree/main/info_saude/; nunca enviar dados clínicos ou dados de perfis para esse repositório.
