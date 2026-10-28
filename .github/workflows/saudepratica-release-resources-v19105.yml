@@ -1,0 +1,34 @@
+name: "SaúdePrática — preparar recursos públicos de assinatura v1.9.105"
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/saudepratica-release-resources-v19105.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  gather:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Obter apenas APK anteriormente publicada e backup cifrado (sem segredos)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p public-release-resources
+          gh release download v1.9.104 --repo "$GITHUB_REPOSITORY" --pattern 'SaudePratica.apk' --dir public-release-resources
+          cp 'SaúdePrática/release-unsigned-patches/v1.9.98/MediAgenda-CHAVE-PRIVADA-ENCRIPTADA.aesgcm.b64' public-release-resources/
+          test -s public-release-resources/SaudePratica.apk
+          test -s public-release-resources/MediAgenda-CHAVE-PRIVADA-ENCRIPTADA.aesgcm.b64
+          sha256sum public-release-resources/SaudePratica.apk
+      - name: Exportar recursos públicos para reconstrução local segura
+        uses: actions/upload-artifact@v4
+        with:
+          name: SaudePratica-v1.9.105-PUBLIC-RESOURCES
+          path: public-release-resources/
+          retention-days: 3
+          if-no-files-found: error
