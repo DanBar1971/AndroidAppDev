@@ -111,7 +111,7 @@ class HealthTipsActivity : AppCompatActivity() {
                 .setNegativeButton("Cancelar",null).show()
         },LinearLayout.LayoutParams(0,dp(51),1f).apply{rightMargin=dp(7)})
         settings.addView(action("Atualizar"){refreshCatalog()},
-            LinearLayout.LayoutParams(0,dp(51),.55f))
+            LinearLayout.LayoutParams(0,dp(51),0.55f))
         body.addView(settings)
         body.addView(title("Histórico de informações",20f,true))
         val history=HealthTipsManager.history(this)
