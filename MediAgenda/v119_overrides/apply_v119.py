@@ -351,8 +351,14 @@ change(records,
             it.fields["scheduled_at"].orEmpty()}.toSet()
         return list("pending_intakes").filter{
             val time=it.fields["scheduled_at"]?.toLongOrNull()?:it.timestamp
-            time>0L && (time<=now-15L*60_000L ||
-                (it.fields["medication_id"].orEmpty()+"|"+time) in unanswered) &&''',
+            val medId=it.fields["medication_id"].orEmpty()
+            // While ADIAR 10M is still active, do not show a new overdue
+            // banner even after the original dose is >15 minutes old.
+            val snoozedUntil=com.mediagenda.app.notifications.MedicationSnoozeState
+                .until(context,id,medId,time)
+            time>0L && snoozedUntil<=now &&
+                (time<=now-15L*60_000L ||
+                (medId+"|"+time) in unanswered) &&''',
        'badge overdue immediately when actual alarm timed out')
 change('HealthRecordsActivity.kt',
 '''        body.addView(label("Avisos há mais de 15 minutos sem confirmação. Isto não prova que a dose foi esquecida.",
