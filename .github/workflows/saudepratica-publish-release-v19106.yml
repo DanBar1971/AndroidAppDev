@@ -1,0 +1,102 @@
+name: "SaúdePrática v1.9.106 — publicar APK original assinada e atualizar website"
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'SaúdePrática/release-unsigned-patches/v1.9.106/manifest.json'
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: saudepratica-release-v1-9-106
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout source and encrypted public recovery package
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate patch manifest and retrieve previous signed release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          DIR='SaúdePrática/release-unsigned-patches/v1.9.106'
+          jq -e '.tag=="v1.9.106" and .base_tag=="v1.9.105" and .asset=="SaudePratica.apk"
+            and .parts==38 and (.base_sha256|test("^[0-9a-f]{64}$"))
+            and (.delta_sha256|test("^[0-9a-f]{64}$"))
+            and (.apk_sha256|test("^[0-9a-f]{64}$"))
+            and (.certificate_sha256|test("^[0-9a-f]{64}$"))' "$DIR/manifest.json"
+          test -s MediAgenda/v126_overrides/RELEASE_NOTES.md
+          if gh release view v1.9.106 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::Release v1.9.106 already exists; cannot overwrite"
+            exit 1
+          fi
+          gh release download v1.9.105 --repo "$GITHUB_REPOSITORY" --pattern 'SaudePratica.apk' --dir previous
+          mv previous/SaudePratica.apk base.apk
+          echo "$(jq -r .base_sha256 "$DIR/manifest.json")  base.apk" | sha256sum --check
+      - name: Rebuild exactly locally signed APK from public previous signed base
+        shell: bash
+        run: |
+          set -euo pipefail
+          DIR='SaúdePrática/release-unsigned-patches/v1.9.106'
+          test "$(find "$DIR" -maxdepth 1 -name 'delta.part*.b64' | wc -l)" -eq "$(jq -r .parts "$DIR/manifest.json")"
+          cat "$DIR"/delta.part*.b64 | base64 --decode > signed.patch.zst
+          echo "$(jq -r .delta_sha256 "$DIR/manifest.json")  signed.patch.zst" | sha256sum --check
+          zstd --decompress --long=28 --patch-from=base.apk signed.patch.zst -o SaudePratica.apk
+          echo "$(jq -r .apk_sha256 "$DIR/manifest.json")  SaudePratica.apk" | sha256sum --check
+      - name: Confirm signed APK version, certificate and original Android identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          [ -x "$SDKMANAGER" ] || SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | head -n1)"
+          "$SDKMANAGER" 'build-tools;35.0.0' >/dev/null
+          TOOL="$ANDROID_HOME/build-tools/35.0.0"
+          "$TOOL/apksigner" verify --verbose SaudePratica.apk
+          "$TOOL/apksigner" verify --verbose base.apk
+          BADGING="$("$TOOL/aapt2" dump badging SaudePratica.apk | head -n1)"
+          echo "$BADGING"
+          echo "$BADGING" | grep -F "name='com.mediagenda.app.stable'"
+          echo "$BADGING" | grep -F "versionCode='116'"
+          echo "$BADGING" | grep -F "versionName='1.9.106'"
+          OLD_CERT="$("$TOOL/apksigner" verify --print-certs base.apk | awk '/Signer #1 certificate SHA-256 digest:/{print $NF; exit}')"
+          NEW_CERT="$("$TOOL/apksigner" verify --print-certs SaudePratica.apk | awk '/Signer #1 certificate SHA-256 digest:/{print $NF; exit}')"
+          EXPECTED="$(jq -r .certificate_sha256 'SaúdePrática/release-unsigned-patches/v1.9.106/manifest.json')"
+          test "$NEW_CERT" = "$OLD_CERT" && test "$NEW_CERT" = "$EXPECTED"
+          test "$NEW_CERT" = '7f67082f5e0de76986a0078d5f998e65467c8468f4d09b0caf8e4b332cc60e6a'
+          echo "Verified original stable signing key fingerprint."
+      - name: Include source, certificate and encrypted original-key backup
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 --decode 'SaúdePrática/release-unsigned-patches/v1.9.98/MediAgenda-CHAVE-PRIVADA-ENCRIPTADA.aesgcm.b64' > MediAgenda-CHAVE-PRIVADA-ENCRIPTADA.aesgcm
+          cp 'SaúdePrática/release-unsigned-patches/v1.9.98/MediAgenda-certificado-publico.pem' .
+          cp 'SaúdePrática/release-unsigned-patches/v1.9.98/recuperar_chave.py' .
+          git archive --format=zip -o SaudePratica-v1.9.106-CODIGO-FONTE.zip HEAD
+          sha256sum SaudePratica.apk SaudePratica-v1.9.106-CODIGO-FONTE.zip MediAgenda-certificado-publico.pem MediAgenda-CHAVE-PRIVADA-ENCRIPTADA.aesgcm recuperar_chave.py > SaudePratica-v1.9.106-SHA256SUMS.txt
+          test ! -f MediAgenda-stable-signing-key.jks
+          test ! -f MediAgenda-Chave-Assinatura-PRIVADA-RECUPERADA.zip
+      - name: Publish public release with signed update and source files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release create v1.9.106 SaudePratica.apk SaudePratica-v1.9.106-SHA256SUMS.txt SaudePratica-v1.9.106-CODIGO-FONTE.zip MediAgenda-certificado-publico.pem MediAgenda-CHAVE-PRIVADA-ENCRIPTADA.aesgcm recuperar_chave.py --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title 'SaúdePrática v1.9.106 — Agenda, medicação, perfis, unidades clínicas e tema claro' --notes-file MediAgenda/v126_overrides/RELEASE_NOTES.md --latest
+          gh release view v1.9.106 --repo "$GITHUB_REPOSITORY" --json tagName,assets,isDraft,isPrerelease | jq -e '.tagName=="v1.9.106" and (.isDraft|not) and (.isPrerelease|not) and any(.assets[]; .name=="SaudePratica.apk")'
+          curl -fL --retry 6 --retry-all-errors --retry-delay 2 "https://github.com/$GITHUB_REPOSITORY/releases/latest/download/SaudePratica.apk" -o latest.apk
+          cmp SaudePratica.apk latest.apk
+      - name: Refresh GitHub Pages after publishing release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh workflow run saudepratica-pages.yml --repo "$GITHUB_REPOSITORY" --ref master
+          echo "Website deployment requested for https://danbar1971.github.io/SaudePratica"
