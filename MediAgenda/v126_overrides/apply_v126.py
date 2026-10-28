@@ -129,7 +129,7 @@ def main(s):
             setPadding(0,0,0,dp(7))
         }
         filters.forEach{option->
-            filterRow.addView(secondaryButton(option).apply{
+            filterRow.addView(secondaryButton(option) {}.apply{
                 textSize=10f;minHeight=dp(34)
                 setPadding(dp(3),0,dp(3),0)
                 alpha=if(selection==option)1f else 0.65f
