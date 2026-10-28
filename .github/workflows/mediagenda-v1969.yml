@@ -39,6 +39,7 @@ on:
       - "MediAgenda/v119_overrides/**"
       - "MediAgenda/v120_overrides/**"
       - "MediAgenda/v121_overrides/**"
+      - "MediAgenda/v122_overrides/**"
   pull_request:
     branches: [master]
     paths:
@@ -77,6 +78,7 @@ on:
       - "MediAgenda/v119_overrides/**"
       - "MediAgenda/v120_overrides/**"
       - "MediAgenda/v121_overrides/**"
+      - "MediAgenda/v122_overrides/**"
   workflow_dispatch:
 permissions:
   contents: write
@@ -183,6 +185,10 @@ jobs:
         run: python3 MediAgenda/v121_overrides/apply_v121.py
       - name: Verify v1.9.102 profile wizard, photos and clinical identifiers
         run: python3 MediAgenda/v121_overrides/verify_v121.py
+      - name: Apply audited lockscreen alarm and per-profile intake isolation
+        run: python3 MediAgenda/v122_overrides/apply_v122.py
+      - name: Reject PIN and caregiver alarm regressions
+        run: python3 MediAgenda/v122_overrides/verify_v122.py
       - name: Require original app artwork (background, icon and splash)
         run: python3 MediAgenda/tools/verify_graphics.py
       - name: Compile Android 1.9.102
