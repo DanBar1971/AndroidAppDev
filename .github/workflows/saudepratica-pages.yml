@@ -1,0 +1,54 @@
+name: SaúdePrática — Website GitHub Pages
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'website/**'
+      - '.github/workflows/saudepratica-pages.yml'
+      - 'MediAgenda/v98_overrides/branding/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: saudepratica-github-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Obter conteúdo público do projeto
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Preparar site e recuperar imagens oficiais
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p public/assets
+          cp website/index.html website/styles.css website/script.js website/.nojekyll public/
+          for image in saude_icon saude_splash saude_background; do
+            base64 --decode "MediAgenda/v98_overrides/branding/${image}.png.b64" > "public/assets/${image}.png"
+            file "public/assets/${image}.png" | grep -F 'PNG image data'
+            test "$(stat -c%s "public/assets/${image}.png")" -gt 1000
+          done
+          grep -F 'SaúdePrática' public/index.html
+          ! grep -Ein 'private.?key|keystore|\.jks|password|token=' public/index.html public/script.js public/styles.css
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Preparar artefacto do website
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: public
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
