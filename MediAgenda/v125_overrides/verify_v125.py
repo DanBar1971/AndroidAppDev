@@ -24,4 +24,14 @@ gradle=(base/"build.gradle.kts").read_text(encoding="utf-8")
 assert 'versionCode = 115' in gradle
 assert 'versionName = "1.9.105"' in gradle
 assert 'applicationId = "com.mediagenda.app.stable"' in gradle
+# Inventory other full-screen Activities that merit a separate visual review.
+# Lack of an explicit image does not itself prove a bug: shared layouts and
+# theme-backed views may provide branded backgrounds elsewhere.
+visual_candidates=[]
+for file in sorted(code.glob("*Activity.kt")):
+    source=file.read_text(encoding="utf-8")
+    if "setContentView(" in source and "saude_background" not in source:
+        visual_candidates.append(file.name)
+print("AUDITORIA_VISUAL: Activities sem fundo explícito:",
+      ", ".join(visual_candidates))
 print("SaúdePrática v1.9.105 source regression gates OK")
