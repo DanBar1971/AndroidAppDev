@@ -173,9 +173,13 @@ jobs:
         run: python3 MediAgenda/v134_overrides/apply_v134.py
       - name: Verify v1.9.114 medical profile identity, deduplication and UI
         run: python3 MediAgenda/v134_overrides/verify_v134.py
+      - name: Apply v1.9.115 PIN-only profile deletion
+        run: python3 MediAgenda/v135_overrides/apply_v135.py
+      - name: Verify v1.9.115 PIN safeguard and exact profile deletion target
+        run: python3 MediAgenda/v135_overrides/verify_v135.py
       - name: Require original app artwork (background, icon and splash)
         run: python3 MediAgenda/tools/verify_graphics.py
-      - name: Compile Android 1.9.114
+      - name: Compile Android 1.9.115
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleRelease
       - name: Check branded graphics exist inside compiled APK
@@ -214,7 +218,7 @@ jobs:
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.114-FULL-SOURCE
+          name: SaudePratica-v1.9.115-FULL-SOURCE
           path: build-src/MediAgenda_Android_v1/
           retention-days: 7
       - name: Export Android signing tools (no certificates or passwords)
@@ -232,7 +236,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: success() || failure()
         with:
-          name: SaudePratica-v1.9.114-UNSIGNED
+          name: SaudePratica-v1.9.115-UNSIGNED
           path: build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk
           retention-days: 7
       - name: Install audited AES-GCM recovery dependency (trusted master only)
