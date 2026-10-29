@@ -13,7 +13,10 @@ s=main.read_text(encoding="utf-8")
 def once(old:str,new:str,label:str):
     global s
     count=s.count(old)
-    assert count==1, (label,count)
+    if count!=1:
+        start=s.find("private fun confirmDeleteSelectedProfile(profile:HealthProfile)")
+        excerpt=s[start:start+3700] if start>=0 else "<method missing>"
+        raise AssertionError((label,count,excerpt))
     s=s.replace(old,new,1)
 
 once(
