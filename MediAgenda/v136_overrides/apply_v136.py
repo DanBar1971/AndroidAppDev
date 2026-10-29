@@ -23,9 +23,7 @@ one('''        box.addView(noteBox("Cartão de Cidadão e identificação",
 one('''        box.addView(noteBox("Morada e unidade de saúde",
             "Os números de observação e de processo clínico foram movidos para Situação Clínica."))
         listOf(address,postalCode,healthUnit).forEach{box.addView(it.container)}''',
-'''        box.addView(noteBox("Unidade de saúde e morada",
-            "A unidade de saúde surge depois do NISS; podes alterar a morada abaixo."))
-        listOf(healthUnit,address,postalCode).forEach{box.addView(it.container)}''',
+'''        listOf(healthUnit,address,postalCode).forEach{box.addView(it.container)}''',
 "health unit after NISS")
 
 # 3. Remove unnecessary UI for contact refs and residential home.
@@ -94,7 +92,8 @@ repl='''            // Uma única ação FICHA. Evita sobreposição de dois tex
                     Color.rgb(21,129,119))
                 setOnClickListener{
                     activateProfile(profile)
-                    post{showProfileDialog(false)}
+                    android.os.Handler(android.os.Looper.getMainLooper())
+                        .post{showProfileDialog(false)}
                 }
             }
             optionsRow.addView(fichaButton,LinearLayout.LayoutParams(
