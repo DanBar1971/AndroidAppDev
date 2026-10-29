@@ -177,11 +177,13 @@ jobs:
         run: python3 MediAgenda/v135_overrides/apply_v135.py
       - name: Verify v1.9.115 PIN safeguard and exact profile deletion target
         run: python3 MediAgenda/v135_overrides/verify_v135.py
-      - name: Inspect current profile, medication and appointment editor source
-        run: python3 MediAgenda/v136_overrides/inspect_v136.py
+      - name: Apply SaúdePrática v1.9.116 full-screen editors and profile cleanup
+        run: python3 MediAgenda/v136_overrides/apply_v136.py
+      - name: Verify v1.9.116 UI changes and medical data invariants
+        run: python3 MediAgenda/v136_overrides/verify_v136.py
       - name: Require original app artwork (background, icon and splash)
         run: python3 MediAgenda/tools/verify_graphics.py
-      - name: Compile Android 1.9.115
+      - name: Compile Android 1.9.116
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleRelease
       - name: Check branded graphics exist inside compiled APK
@@ -220,7 +222,7 @@ jobs:
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.115-FULL-SOURCE
+          name: SaudePratica-v1.9.116-FULL-SOURCE
           path: build-src/MediAgenda_Android_v1/
           retention-days: 7
       - name: Export Android signing tools (no certificates or passwords)
@@ -238,7 +240,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: success() || failure()
         with:
-          name: SaudePratica-v1.9.115-UNSIGNED
+          name: SaudePratica-v1.9.116-UNSIGNED
           path: build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk
           retention-days: 7
       - name: Install audited AES-GCM recovery dependency (trusted master only)
