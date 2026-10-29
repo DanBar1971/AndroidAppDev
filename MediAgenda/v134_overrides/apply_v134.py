@@ -95,7 +95,7 @@ a=replace(a,'show("A anunciar este telemóvel. No outro escolhe \'Procurar\'.")'
 a=replace(a,'show("A procurar telemóveis SaúdePrática próximos…")',
 '''show("A receber APENAS no perfil "+selectedProfileLabel+
                 ". Escolhe o telemóvel de origem.")''',"search wording")
-a=replace(a,'                worker.execute{\\n                    try{\\n                        val zip=NearbySyncStore(applicationContext).export()',
+a=replace(a,'                worker.execute{\n                    try{\n                        val zip=NearbySyncStore(applicationContext).export()',
 '''                if(mode=="host")worker.execute{
                     try{
                         val zip=NearbySyncStore(applicationContext).export(selectedProfileId)''',"only host sends")
