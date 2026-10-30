@@ -22,3 +22,20 @@ if p.exists():
     for i,l in enumerate(lines):
         if re.search(r"(?:private )?fun .*([Mm]edicat|[Mm]edic|[Aa]larm|[Ss]uspend)",l):
             print(f"{i+1:05d} {l.strip()}")
+
+print("\n@@ DATA MODEL AND REPOSITORY")
+for p in base.rglob("*.kt"):
+    s=p.read_text(encoding="utf8")
+    lines=s.splitlines()
+    if "data class Medication(" in s:
+        for i,l in enumerate(lines):
+            if "data class Medication(" in l:
+                print("@@ MODEL",p.relative_to(base),"LINE",i+1)
+                for k in range(i,min(len(lines),i+95)):print(f"{k+1:05d}: {lines[k]}")
+    if p.name=="DataRepository.kt":
+        for phrase in ["fun loadMedications(","fun saveMedications(","\"medication\" to","\"dose_pattern\""]:
+            for i,l in enumerate(lines):
+                if phrase in l:
+                    print("@@ REPO",phrase,"LINE",i+1)
+                    for k in range(max(0,i-12),min(len(lines),i+90)):print(f"{k+1:05d}: {lines[k]}")
+                    break
