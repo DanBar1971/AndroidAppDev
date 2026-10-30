@@ -1,16 +1,7 @@
-name: SaudePratica Android Build + AutoRelease
+name: SaúdePrática Android Build + AutoRelease (LEGACY — manual only)
 on:
-  push:
-    branches: [master]
-    paths:
-      - ".github/workflows/mediagenda-v1969.yml"
-      - "MediAgenda/**"
-  pull_request:
-    branches: [master]
-    paths:
-      - ".github/workflows/mediagenda-v1969.yml"
-      - "MediAgenda/**"
   workflow_dispatch:
+
 permissions:
   contents: write
   actions: write
