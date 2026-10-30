@@ -217,6 +217,54 @@ replace(main,'''        activeMedicationDialog = MaterialAlertDialogBuilder(this
         activeMedicationDialog = MaterialAlertDialogBuilder(this)
             .setTitle(if(fromScan) "Confirmar medicação" else if(existing==null) "Nova medicação" else "Editar medicação")''',"grouped full-screen medication editor")
 
+
+# "Confirmar medicação" (OCR prefilled) must use the same full-screen editor.
+safe=src/"SafeMaterialAlertDialogBuilder.kt"
+replace(safe,'val fullEditor=hydrationEditor || formTitle=="editar perfil" ||',
+'''val fullEditor=hydrationEditor || formTitle=="editar perfil" ||
+            formTitle=="confirmar medicação" ||''',"fullscreen for OCR confirmation")
+
+# Also update the five-language dictionary used by Mais -> Ajuda and controls.
+language=src/"i18n/AppLanguage.kt"
+dictionary=language.read_text(encoding="utf-8")
+rows=[
+    ("Via de administração","Route of administration","Voie d’administration","Verabreichungsweg","Vía de administración"),
+    ("Via de administração prescrita","Prescribed route of administration","Voie d’administration prescrite","Verordneter Verabreichungsweg","Vía de administración prescrita"),
+    ("Por indicar","Not specified","Non renseigné","Nicht angegeben","Sin indicar"),
+    ("Via oral","Oral","Voie orale","Oral","Vía oral"),
+    ("Via sublingual","Sublingual","Voie sublinguale","Sublingual","Vía sublingual"),
+    ("Via parentérica · Injeção","Parenteral · Injection","Voie parentérale · Injection","Parenteral · Injektion","Vía parenteral · Inyección"),
+    ("Via tópica / cutânea","Topical / Skin","Voie topique / cutanée","Topisch / Haut","Vía tópica / cutánea"),
+    ("Via inalatória","Inhaled","Voie inhalée","Inhalativ","Vía inhalatoria"),
+    ("Via retal","Rectal","Voie rectale","Rektal","Vía rectal"),
+    ("Via vaginal","Vaginal","Voie vaginale","Vaginal","Vía vaginal"),
+    ("Via ocular","Ophthalmic","Voie oculaire","Okulär","Vía ocular"),
+    ("Via otológica","Ear","Voie auriculaire","Ohr","Vía ótica"),
+    ("Via nasal","Nasal","Voie nasale","Nasal","Vía nasal"),
+    ("Outra","Other","Autre","Sonstige","Otra"),
+    ("Tipo de injeção","Injection type","Type d’injection","Injektionsart","Tipo de inyección"),
+    ("Tipo de injeção prescrito","Prescribed injection type","Type d’injection prescrit","Verordnete Injektionsart","Tipo de inyección prescrito"),
+    ("Por especificar","Unspecified","Non précisé","Nicht spezifiziert","Sin especificar"),
+    ("Subcutânea","Subcutaneous","Sous-cutanée","Subkutan","Subcutánea"),
+    ("Intramuscular","Intramuscular","Intramusculaire","Intramuskulär","Intramuscular"),
+    ("Intravenosa","Intravenous","Intraveineuse","Intravenös","Intravenosa"),
+    ("Intradérmica","Intradermal","Intradermique","Intradermal","Intradérmica"),
+    ("Outra injeção","Other injection","Autre injection","Andere Injektion","Otra inyección"),
+    ("Prescrição","Prescription","Ordonnance","Rezept","Receta"),
+    ("Repetições","Repeats","Répétitions","Wiederholungen","Repeticiones"),
+    ("Informação","Information","Informations","Information","Información"),
+    ("Bula / Folheto informativo","Package leaflet","Notice du médicament","Packungsbeilage","Prospecto"),
+    ("Foto da embalagem","Package photo","Photo de l’emballage","Packungsfoto","Foto del envase"),
+    ("Abrir grupo","Expand group","Ouvrir la section","Bereich öffnen","Abrir grupo"),
+    ("Fechar grupo","Collapse group","Fermer la section","Bereich schließen","Cerrar grupo"),
+]
+assert all(len(v)==5 for v in rows)
+anchor='    private val source="""\n'
+assert dictionary.count(anchor)==1, ("language source anchor",dictionary.count(anchor))
+dictionary=dictionary.replace(anchor,anchor+
+    ''.join('\t'.join(row)+'\n' for row in rows),1)
+language.write_text(dictionary,encoding="utf-8")
+
 gradle=root/"build.gradle.kts"
 g=gradle.read_text(encoding="utf-8")
 assert g.count("versionCode = 127")==1 and g.count('versionName = "1.9.117"')==1
