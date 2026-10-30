@@ -1,3 +1,9 @@
+# REPOSITÓRIO ANTIGO — SaúdePrática migrou (30/10/2026)
+
+**Todas as novas alterações, builds e releases devem ocorrer em https://github.com/DanBar1971/SaudePratica.** A versão de transição v1.9.119 foi publicada aqui para atualizar as instalações existentes para o novo canal. Este repositório fica como arquivo; não publicar novas releases Android aqui por engano. O workflow automático de lançamento foi colocado em execução manual apenas. O histórico antigo é mantido para segurança e auditoria.
+
+---
+
 # Project continuity for Android Apps / SaúdePrática
 
 When working on **SaúdePrática** in this repository, read these files first:
