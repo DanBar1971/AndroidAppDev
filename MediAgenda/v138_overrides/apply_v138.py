@@ -16,12 +16,12 @@ def replace(path,old,new,label):
     path.write_text(s.replace(old,new,1),encoding="utf-8")
 
 models=src/"model/Models.kt"
-replace(models,'''    var dose: String = "",
-    var indication: String = "",''','''    var dose: String = "",
-    // Vias de administração indicadas na prescrição (não inferir pelas doses).
+replace(models,'''    var leafletDocumentId: String = ""
+)''','''    var leafletDocumentId: String = "",
+    // Adicionados no fim para manter a ordem dos parâmetros antigos intacta.
     var administrationRoute: String = "",
-    var injectionType: String = "",
-    var indication: String = "",''',"medication model fields")
+    var injectionType: String = ""
+)''',"medication model fields")
 
 repo=src/"data/DataRepository.kt"
 replace(repo,'''                dose = o.optString("dose"),
