@@ -185,6 +185,8 @@ jobs:
         run: python3 MediAgenda/v137_overrides/apply_v137.py
       - name: Verify v1.9.117 large-font hydration UI and alarm invariants
         run: python3 MediAgenda/v137_overrides/verify_v137.py
+      - name: Inspect medication editor structure for v1.9.118 (temporary)
+        run: python3 MediAgenda/v138_overrides/inspect_v138.py
       - name: Require original app artwork (background, icon and splash)
         run: python3 MediAgenda/tools/verify_graphics.py
       - name: Compile Android 1.9.117
