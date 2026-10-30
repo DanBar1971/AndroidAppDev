@@ -185,11 +185,13 @@ jobs:
         run: python3 MediAgenda/v137_overrides/apply_v137.py
       - name: Verify v1.9.117 large-font hydration UI and alarm invariants
         run: python3 MediAgenda/v137_overrides/verify_v137.py
-      - name: Inspect medication editor structure for v1.9.118 (temporary)
-        run: python3 MediAgenda/v138_overrides/inspect_v138.py
+      - name: Apply v1.9.118 reorganized medication editor and administration routes
+        run: python3 MediAgenda/v138_overrides/apply_v138.py
+      - name: Verify v1.9.118 medication form, JSON and alarm integrity
+        run: python3 MediAgenda/v138_overrides/verify_v138.py
       - name: Require original app artwork (background, icon and splash)
         run: python3 MediAgenda/tools/verify_graphics.py
-      - name: Compile Android 1.9.117
+      - name: Compile Android 1.9.118
         working-directory: build-src/MediAgenda_Android_v1
         run: gradle --no-daemon assembleRelease
       - name: Check branded graphics exist inside compiled APK
@@ -228,7 +230,7 @@ jobs:
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: SaudePratica-v1.9.117-FULL-SOURCE
+          name: SaudePratica-v1.9.118-FULL-SOURCE
           path: build-src/MediAgenda_Android_v1/
           retention-days: 7
       - name: Export Android signing tools (no certificates or passwords)
@@ -246,7 +248,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: success() || failure()
         with:
-          name: SaudePratica-v1.9.117-UNSIGNED
+          name: SaudePratica-v1.9.118-UNSIGNED
           path: build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk
           retention-days: 7
       - name: Install audited AES-GCM recovery dependency (trusted master only)
