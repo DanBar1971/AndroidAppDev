@@ -1,0 +1,24 @@
+name: Verificar ponte de compilação Android (sem acesso a dados pessoais)
+on:
+  push:
+    branches: ["bridge/signature"]
+    paths: [".github/workflows/signing-bridge-android.yml"]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  check-source-artifact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Ler artefacto público unsigned do repositório principal
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p unsigned
+          gh run download 41306720632 --repo DanBar1971/SaudePratica \
+            --name SaudePratica-v1.9.125-UNSIGNED --dir unsigned
+          test "$(find unsigned -maxdepth 1 -type f -name '*.apk' | wc -l)" -eq 1
+          test -s "$(find unsigned -maxdepth 1 -type f -name '*.apk' | head -1)"
+          echo "::notice title=Ponte disponível::O repositório antigo conseguiu ler a APK não assinada do repositório atual."
