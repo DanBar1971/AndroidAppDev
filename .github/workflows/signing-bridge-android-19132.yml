@@ -1,0 +1,81 @@
+name: Assinar Android SaúdePrática 1.9.132 com certificado ORIGINAL (ponte segura)
+on:
+  push:
+    branches: ["bridge/signature"]
+    paths: ["MediAgenda/signing-requests/v19132.txt"]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  sign-original:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Instalar validador Android e biblioteca de recuperação original
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -n1)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "build-tools;35.0.0"
+          python3 -m pip install --quiet 'cryptography>=42,<50'
+      - name: Verificar origem e testes da compilação no repositório PRINCIPAL
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = DanBar1971/AndroidAppDev
+          RUN="$(tr -d '[:space:]' < MediAgenda/signing-requests/v19132.txt)"
+          [[ "$RUN" =~ ^[0-9]{8,14}$ ]] || exit 1
+          test "$(gh api "repos/DanBar1971/SaudePratica/actions/runs/$RUN" --jq .conclusion)" = success
+          test "$(gh api "repos/DanBar1971/SaudePratica/actions/runs/$RUN" --jq .head_branch)" = feat/android-19132-ai-ui-windows-lan
+          test "$(gh api "repos/DanBar1971/SaudePratica/actions/runs/$RUN" --jq .head_sha)" = a5efac3115f361a0ee243c507c474504dd0e224d
+          mkdir -p unsigned
+          gh run download "$RUN" --repo DanBar1971/SaudePratica \
+            --name SaudePratica-v1.9.132-UNSIGNED --dir unsigned
+          test "$(find unsigned -maxdepth 1 -name '*.apk' -type f | wc -l)" -eq 1
+          APK="$(find unsigned -maxdepth 1 -name '*.apk' -type f | head -n1)"
+          mkdir -p build-src/MediAgenda_Android_v1/app/build/outputs/apk/release
+          cp "$APK" build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk
+          cp MediAgenda/signing-requests/v19132.txt source-run.txt
+      - name: Confirmar Android 1.9.132 e identificador original ANTES de recuperar assinatura
+        run: |
+          set -euo pipefail
+          APK=build-src/MediAgenda_Android_v1/app/build/outputs/apk/release/app-release-unsigned.apk
+          META="$("$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging "$APK" | sed -n '1p')"
+          echo "$META" | grep -F "name='com.mediagenda.app.stable'"
+          echo "$META" | grep -F "versionCode='142'"
+          echo "$META" | grep -F "versionName='1.9.132'"
+          # Never sign if the native engine needed by Android 1.9.132
+          # is missing, even when the Kotlin code compiles.
+          unzip -Z1 "$APK" | grep -Fx "lib/arm64-v8a/libsaude_llm.so"
+          unzip -Z1 "$APK" | grep -Fx "lib/x86_64/libsaude_llm.so"
+          sha256sum "$APK" | cut -d' ' -f1 > unsigned-sha256.txt
+      - name: Recuperar chave ORIGINAL em runner temporário, assinar e comparar certificado
+        env:
+          SAUDEPRACTICA_SIGNING_RECOVERY_HEX: ${{ secrets.SAUDEPRACTICA_SIGNING_RECOVERY_HEX }}
+        run: |
+          set -euo pipefail
+          test -n "$SAUDEPRACTICA_SIGNING_RECOVERY_HEX" || { echo "::error::Falta a chave de recuperação original"; exit 1; }
+          python3 MediAgenda/tools/sign_release.py
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs SaudePratica.apk |
+            grep -Fi '7f67082f5e0de76986a0078d5f998e65467c8468f4d09b0caf8e4b332cc60e6a'
+          sha256sum SaudePratica.apk > SHA256SUMS.txt
+          echo "::notice title=Assinatura original confirmada::Android 1.9.132, dados privados nunca exportados."
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SaudePratica-v1.9.132-ORIGINAL-SIGNED
+          path: |
+            SaudePratica.apk
+            SHA256SUMS.txt
+            source-run.txt
+            unsigned-sha256.txt
+          if-no-files-found: error
+          retention-days: 14
