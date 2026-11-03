@@ -52,6 +52,10 @@ jobs:
           echo "$META" | grep -F "name='com.mediagenda.app.stable'"
           echo "$META" | grep -F "versionCode='140'"
           echo "$META" | grep -F "versionName='1.9.130'"
+          # Never sign if the native engine needed by Android 1.9.130
+          # is missing, even when the Kotlin code compiles.
+          unzip -Z1 "$APK" | grep -Fx "lib/arm64-v8a/libsaude_llm.so"
+          unzip -Z1 "$APK" | grep -Fx "lib/x86_64/libsaude_llm.so"
           sha256sum "$APK" | cut -d' ' -f1 > unsigned-sha256.txt
       - name: Recuperar chave ORIGINAL em runner temporário, assinar e comparar certificado
         env:
